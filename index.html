@@ -10,6 +10,8 @@
 <meta name="apple-mobile-web-app-title" content="Turnout">
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23C4622D'/><text x='90' y='115' text-anchor='middle' font-family='Georgia,serif' font-size='110' fill='white'>T</text></svg>">
 
+<link rel="manifest" href="./manifest.webmanifest">
+
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -92,6 +94,7 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
 #main{
   flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
   overscroll-behavior-y:contain;scrollbar-width:none;background:var(--cream);
+  position:relative;
 }
 #main::-webkit-scrollbar{display:none;}
 .view{display:none;flex-direction:column;min-height:100%;}
@@ -282,7 +285,6 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
 .map-chip{
   -webkit-user-select:none;
   user-select:none;
-}
 }
 .leaflet-container{-webkit-tap-highlight-color:transparent;}
 
@@ -847,7 +849,7 @@ html, body { height: 100%; }
     </div>
     <!-- SOCIAL: Tag friends and privacy -->
     <div class="form-grp"><label>Tag friends (optional)</label>
-      <input type="text" id="f-friends" placeholder="Type names, separated by commas">
+      <input type="text" id="f-friends" list="friends-datalist" placeholder="Type names, separated by commas">
       <div style="font-size:11px;color:var(--brown);margin-top:4px;">Tag friends to invite them directly</div>
     </div>
     <div class="form-grp"><label>Event privacy</label>
@@ -892,6 +894,16 @@ html, body { height: 100%; }
           <div class="year-stat"><div class="year-n">3</div><div class="year-l">events hosted</div></div>
           <div class="year-stat"><div class="year-n">6.2mi</div><div class="year-l">furthest event</div></div>
         </div>
+      </div>
+
+      <div class="me-sec">
+        <h3>Friends</h3>
+        <p style="font-size:12px;color:var(--brown);margin-bottom:10px;">Add a few friends here, then tag them in events.</p>
+        <div style="display:flex;gap:8px;">
+          <input id="friend-add-in" type="text" placeholder="Add friend name (e.g. Sam)" style="flex:1;padding:12px;border-radius:12px;border:0.5px solid var(--border-md);background:var(--card-bg);font-size:13px;">
+          <button class="btn-main" style="width:auto;padding:12px 14px;border-radius:12px;" onclick="addFriend()">Add</button>
+        </div>
+        <div id="me-friends" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;"></div>
       </div>
 
       <div class="me-sec">
@@ -1103,6 +1115,8 @@ html, body { height: 100%; }
 </div>
 <div id="toast"></div>
 
+<datalist id="friends-datalist"></datalist>
+
 </div><!-- end #app -->
 
 <script>
@@ -1129,6 +1143,12 @@ let prefs = {
 let savedEvs = new Set([1,3]);
 let toastT = null;
 
+/* Social: friends + user events (works on GitHub Pages via localStorage) */
+const FRIENDS_KEY = 'to_friends_v1';
+const USER_EVENTS_KEY = 'to_user_events_v1';
+const EVENT_TAGS_KEY = 'to_event_tags_v1';
+let friends = [];
+
 /* Leaflet map */
 let lmap = null;
 let mapMarkers = [];
@@ -1145,7 +1165,7 @@ let obStep = 1;
    DATA (sample events near Bicester)
    (You can replace with your real API later)
 ============================ */
-const EVENTS = [
+let EVENTS = [
   {id:1, name:"Coffee Morning", venue:"Bicester Village", date:"Sat 21 Mar", time:"9:00am", price:"Free", priceN:0, cat:"Coffee", icon:"☕", lat:51.8929,lng:-1.1515, going:12, attendees:["SA","BJ","TM","LC","PW"], bring:"your own mug", cap:null, family:true, popular:85, today:false, past:false, banner:false, featured:false,
    desc:"Come for a cuppa and a catch-up! Everyone welcome." , qa:[], photos:[]},
 
@@ -1171,6 +1191,130 @@ const CAT_BG = {Coffee:'#FAE8DC',Pubs:'#FDF5E0',Markets:'#E8F4EC',Music:'#F0EBF8
 /* ============================
    UTIL: Distance + parsing time
 ============================ */
+function escapeHtml(str){
+  return String(str)
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'","&#039;");
+}
+function loadFriends(){
+  try{
+    const raw = localStorage.getItem(FRIENDS_KEY);
+    friends = raw ? JSON.parse(raw) : [];
+    if(!Array.isArray(friends)) friends = [];
+  }catch{ friends = []; }
+  friends = [...new Set(friends.map(f=>String(f||'').trim()).filter(Boolean))].slice(0,120);
+  updateFriendsDatalist();
+  renderFriends();
+}
+function saveFriends(){
+  localStorage.setItem(FRIENDS_KEY, JSON.stringify(friends));
+  updateFriendsDatalist();
+}
+function updateFriendsDatalist(){
+  const dl = document.getElementById('friends-datalist');
+  if(!dl) return;
+  dl.innerHTML = friends.map(f=>`<option value="${escapeHtml(f)}"></option>`).join('');
+}
+function renderFriends(){
+  const wrap = document.getElementById('me-friends');
+  if(!wrap) return;
+  if(!friends.length){
+    wrap.innerHTML = '<span style="font-size:12px;color:var(--brown);font-style:italic;">No friends added yet.</span>';
+    return;
+  }
+  wrap.innerHTML = friends.map((f,i)=>`
+    <span style="display:inline-flex;align-items:center;gap:6px;background:var(--sand);border:0.5px solid var(--border-md);padding:6px 10px;border-radius:999px;font-size:12px;color:var(--dark);">
+      ${escapeHtml(f)}
+      <button aria-label="Remove friend" onclick="removeFriend(${i})" style="border:none;background:rgba(0,0,0,.06);width:18px;height:18px;border-radius:50%;cursor:pointer;line-height:18px;font-size:12px;">×</button>
+    </span>
+  `).join('');
+}
+function addFriend(){
+  const inp = document.getElementById('friend-add-in');
+  if(!inp) return;
+  const v = (inp.value||'').trim();
+  if(!v) return;
+  friends = [...new Set([...friends, v])].slice(0,120);
+  inp.value = '';
+  saveFriends();
+  renderFriends();
+  showToast('Friend added');
+}
+function removeFriend(idx){
+  friends.splice(idx,1);
+  saveFriends();
+  renderFriends();
+}
+
+function loadUserEvents(){
+  let userEvs = [];
+  try{
+    const raw = localStorage.getItem(USER_EVENTS_KEY);
+    userEvs = raw ? JSON.parse(raw) : [];
+  }catch{ userEvs = []; }
+  if(!Array.isArray(userEvs)) userEvs = [];
+
+  // Normalize minimal fields and merge (avoid ID collisions)
+  const used = new Set(EVENTS.map(e=>e.id));
+  userEvs.forEach(ev=>{
+    if(!ev || typeof ev !== 'object') return;
+    let id = Number(ev.id);
+    if(!Number.isFinite(id) || used.has(id)){
+      id = Math.max(0, ...[...used]) + 1;
+      ev.id = id;
+    }
+    used.add(id);
+    ev._user = true;
+    EVENTS.push(ev);
+  });
+}
+function saveUserEvents(){
+  const userEvs = EVENTS.filter(e=>e && e._user);
+  localStorage.setItem(USER_EVENTS_KEY, JSON.stringify(userEvs));
+}
+
+function loadEventTags(){
+  let map = {};
+  try{ map = JSON.parse(localStorage.getItem(EVENT_TAGS_KEY) || '{}') || {}; }catch{ map = {}; }
+  // apply to existing events (without overwriting explicit event.friends)
+  EVENTS.forEach(ev=>{
+    const raw = map[String(ev.id)];
+    if(Array.isArray(raw) && (!ev.friends || !ev.friends.length)){
+      ev.friends = raw.map(x=>String(x||'').trim()).filter(Boolean);
+    }
+  });
+}
+function getEventTags(id){
+  const ev = EVENTS.find(e=>e.id===id);
+  if(ev && Array.isArray(ev.friends)) return ev.friends;
+  return [];
+}
+function setEventTags(id, tags){
+  const clean = [...new Set((tags||[]).map(t=>String(t||'').trim()).filter(Boolean))].slice(0,40);
+  const ev = EVENTS.find(e=>e.id===id);
+  if(ev) ev.friends = clean;
+  let map = {};
+  try{ map = JSON.parse(localStorage.getItem(EVENT_TAGS_KEY) || '{}') || {}; }catch{ map = {}; }
+  map[String(id)] = clean;
+  localStorage.setItem(EVENT_TAGS_KEY, JSON.stringify(map));
+}
+function openTagFriends(id){
+  if(!friends.length){
+    showToast('Add friends in Me → Friends first');
+    switchTab('me', document.getElementById('ntab-me'));
+    return;
+  }
+  const cur = getEventTags(id).join(', ');
+  const picked = prompt('Tag friends (comma separated). Tip: use names you added in Me → Friends.', cur);
+  if(picked==null) return;
+  const tags = picked.split(',').map(s=>s.trim()).filter(Boolean);
+  setEventTags(id, tags);
+  openEvById(id);
+  showToast('Updated tags');
+}
 function milesBetween(lat1,lng1,lat2,lng2){
   const R=6371e3;
   const toRad=x=>x*Math.PI/180;
@@ -1673,15 +1817,6 @@ function openEvById(id){
   const ev=EVENTS.find(e=>e.id===id);
   if(!ev) return;
 
-  // Social: show tagged friends and privacy if present
-  var socialInfo = '';
-  if (ev.friends && ev.friends.length) {
-    socialInfo += '<div style="margin-bottom:10px;font-size:13px;color:var(--brown)"><strong>👥 Tagged friends:</strong> ' + ev.friends.map(function(f){return '<span style="background:var(--sand);padding:2px 7px;border-radius:7px;margin-right:4px;">'+f+'</span>';}).join('') + '</div>';
-  }
-  if (ev.privacy === 'friends') {
-    socialInfo += '<div style="margin-bottom:10px;font-size:12px;color:var(--mid)"><strong>🔒 Private event (friends only)</strong></div>';
-  }
-
   const sheet=document.getElementById('sheet');
   const isSaved=savedEvs.has(ev.id);
   const isFull=ev.cap&&ev.cap.now>=ev.cap.max;
@@ -1717,9 +1852,10 @@ function openEvById(id){
   if (ev.privacy === 'friends') {
     socialInfo += '<div style="margin-bottom:10px;font-size:12px;color:var(--mid)"><strong>🔒 Private event (friends only)</strong></div>';
   }
+  socialInfo += '<div style="margin-bottom:10px;"><button onclick="openTagFriends('+ev.id+')" style="background:var(--sand);border:0.5px solid var(--border-md);padding:8px 10px;border-radius:10px;font-size:12px;cursor:pointer;color:var(--mid);width:100%;">👥 Tag / invite friends</button></div>';
 
   sheet.innerHTML =
-    '<div class="drag-row"><div class="drag-handle"></div><div class="sheet-share" onclick="shareSheet(\''+ev.name+'\')">📤</div></div>'+
+    '<div class="drag-row"><div class="drag-handle"></div><div class="sheet-share" onclick="shareEvent('+ev.id+')">📤</div></div>'+
     '<div class="ev-hero">'+
       '<div class="ev-big-emoji" style="background:'+(CAT_BG[ev.cat]||'#F2E8D9')+'">'+ev.icon+'</div>'+
       '<div>'+
@@ -1764,9 +1900,17 @@ function sheetSave(id,btn){
   else{savedEvs.add(id);btn.textContent='♥ Saved';btn.classList.add('saved');showToast('Saved! 🔖');}
   renderFeed();
 }
-function shareSheet(name){
-  if(navigator.share)navigator.share({title:name,url:window.location.href});
-  else{navigator.clipboard&&navigator.clipboard.writeText(window.location.href);showToast('Link copied! 📋');}
+function shareEvent(id){
+  const ev = EVENTS.find(e=>e.id===id);
+  const u = new URL(window.location.href);
+  u.searchParams.set('event', String(id));
+  const tags = (ev && Array.isArray(ev.friends) && ev.friends.length) ? ev.friends.join(',') : '';
+  if(tags) u.searchParams.set('tags', tags);
+  if(navigator.share) navigator.share({title: ev?ev.name:'Turnout event', url: u.toString()});
+  else{
+    navigator.clipboard && navigator.clipboard.writeText(u.toString());
+    showToast('Link copied!');
+  }
 }
 function sendQA(id){
   const f=document.getElementById('qa-in-'+id);
@@ -1933,6 +2077,31 @@ function doParse(){
   note.style.display=filled>0?'block':'none';
   if(!filled)showToast("Couldn't parse that — try filling in manually");
 }
+function formatShortDate(iso){
+  try{
+    const d = new Date(iso+'T12:00:00');
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const mons = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${days[d.getDay()]} ${d.getDate()} ${mons[d.getMonth()]}`;
+  }catch{ return iso; }
+}
+function formatTime12h(hhmm){
+  const [hRaw,mRaw] = String(hhmm||'').split(':');
+  let h = Number(hRaw), m = Number(mRaw);
+  if(!Number.isFinite(h) || !Number.isFinite(m)) return hhmm;
+  const ampm = h>=12 ? 'pm' : 'am';
+  h = h%12; if(h===0) h=12;
+  return `${h}:${String(m).padStart(2,'0')}${ampm}`;
+}
+// Social: privacy toggle
+function setPrivacy(val,el){
+  window._eventPrivacy = val;
+  // update just the Post privacy toggle visuals
+  document.querySelectorAll('#view-post .yn-toggle .yn-opt').forEach(o=>{
+    if(o.textContent.includes('Public')) o.classList.toggle('active', val==='public');
+    if(o.textContent.includes('Friends')) o.classList.toggle('active', val==='friends');
+  });
+}
 function submitPost(){
   const n=document.getElementById('f-name'),v=document.getElementById('f-venue'),d=document.getElementById('f-date'),t=document.getElementById('f-time');
   let ok=true;
@@ -1945,35 +2114,62 @@ function submitPost(){
   });
   if(!ok){showToast('Please fill in the required fields');return;}
   // Social: collect friends and privacy
-  const friends = document.getElementById('f-friends').value.split(',').map(f=>f.trim()).filter(Boolean);
+  const taggedFriends = document.getElementById('f-friends').value.split(',').map(f=>f.trim()).filter(Boolean);
   const privacy = window._eventPrivacy || 'public';
-  // (In a real app, save these fields with the event)
-  if (privacy === 'friends' && !friends.length) {
+  if (privacy === 'friends' && !taggedFriends.length) {
     showToast('Tag at least one friend for a private event');
     return;
   }
-  showToast(privacy==='public' ? 'Your event is live on Turnout! 🎉' : 'Event posted to friends only! 👥');
+
+  const nextId = Math.max(0, ...EVENTS.map(e=>e.id||0)) + 1;
+  const ev = {
+    id: nextId,
+    name: n.value.trim(),
+    venue: v.value.trim(),
+    date: formatShortDate(d.value),
+    time: formatTime12h(t.value),
+    price: 'Free',
+    priceN: 0,
+    cat: 'Social',
+    icon: '🎉',
+    lat: userLat ?? 51.8990,
+    lng: userLng ?? -1.1530,
+    going: 1,
+    attendees: ['TS'],
+    bring: (document.getElementById('f-bring').value||'').trim() || null,
+    cap: null,
+    family: !!prefs.familyMode,
+    popular: 10,
+    today: false,
+    past: false,
+    banner: false,
+    featured: false,
+    desc: (document.getElementById('f-desc').value||'').trim() || '',
+    qa: [],
+    photos: [],
+    friends: taggedFriends,
+    privacy,
+    _user: true
+  };
+  EVENTS.push(ev);
+  saveUserEvents();
+
+  showToast(privacy==='public' ? 'Your event is live on Turnout!' : 'Event posted to friends only!');
   [n,v,d,t].forEach(f=>f.value='');
   document.getElementById('smart-in').value='';
   document.getElementById('parse-ok').style.display='none';
   document.getElementById('f-friends').value='';
+  document.getElementById('f-bring').value='';
+  document.getElementById('f-desc').value='';
   setPrivacy('public');
   setTimeout(()=>switchTab('feed',document.getElementById('ntab-feed')),600);
-// Social: privacy toggle
-function setPrivacy(val,el){
-  window._eventPrivacy = val;
-  const opts = document.querySelectorAll('.yn-toggle .yn-opt');
-  opts.forEach(o => {
-    if (o.textContent.includes('Public')) o.classList.toggle('active', val==='public');
-    if (o.textContent.includes('Friends')) o.classList.toggle('active', val==='friends');
-  });
-}
 }
 
 /* ============================
    ME
 ============================ */
 function renderMe(){
+  renderFriends();
   const sc=document.getElementById('me-saved');
   sc.innerHTML='';
   const sl=EVENTS.filter(e=>savedEvs.has(e.id));
@@ -2243,6 +2439,9 @@ document.addEventListener('click',()=>{
 ============================ */
 document.addEventListener('DOMContentLoaded',()=>{
   loadP();
+  loadUserEvents();
+  loadEventTags();
+  loadFriends();
   renderFeed();
   renderTimeline();
   if(!prefs.setupDone) document.getElementById('onboarding').classList.add('show');
@@ -2257,6 +2456,23 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   if(prefs.familyMode) document.getElementById('family-tp').classList.add('on');
   if(prefs.quietEnabled) document.getElementById('quiet-tp').classList.add('on');
+
+  // Deep links like ?event=12 (and optional ?tags=Amy,Ben)
+  try{
+    const sp = new URLSearchParams(window.location.search);
+    const evId = Number(sp.get('event'));
+    const tags = sp.get('tags');
+    if(Number.isFinite(evId) && EVENTS.some(e=>e.id===evId)){
+      if(tags) setEventTags(evId, tags.split(',').map(s=>s.trim()).filter(Boolean));
+      // open on top of current tab
+      setTimeout(()=>openEvById(evId), 250);
+    }
+  }catch{}
+
+  // PWA: cache for offline-ish use
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  }
 });
 </script>
 </body>
