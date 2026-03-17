@@ -4,15 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <title>Turnout — your town, happening.</title>
-
 <meta name="theme-color" content="#C4622D">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Turnout">
-<meta name="mobile-web-app-capable" content="yes">
-
-<link rel="manifest" href="./manifest.webmanifest">
-
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23C4622D'/><text x='90' y='115' text-anchor='middle' font-family='Georgia,serif' font-size='110' fill='white'>T</text></svg>">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -43,7 +38,9 @@
   --shadow:0 2px 12px rgba(0,0,0,0.5); --shadow-lg:0 8px 30px rgba(0,0,0,0.5);
   --card-bg:#261608;
 }
-.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after { transition:none !important; animation:none !important; }
+.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
+  transition:none !important; animation:none !important;
+}
 
 /* === RESET === */
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
@@ -223,12 +220,12 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
 .empty-state h3{font-family:var(--font-heading);font-size:18px;margin-bottom:8px;}
 .empty-state p{font-size:13px;color:var(--brown);margin-bottom:20px;line-height:1.6;}
 
-/* === MAP VIEW (FIXED) === */
+/* === MAP VIEW === */
+/* Key fix: keep view-map as flex container like other views; give it a reliable height */
 #view-map{
   position:relative;
   padding:0 !important;
   flex:1;
-  height:100%;
   min-height:100%;
 }
 #leaflet-map{
@@ -236,10 +233,10 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
   inset:0;
   width:100%;
   height:100%;
-  min-height:320px;
   background:#e8ecd8;
 }
 .leaflet-container{-webkit-tap-highlight-color:transparent;}
+
 .map-filter-bar{
   position:absolute;top:8px;left:0;right:0;
   display:flex;gap:8px;overflow-x:auto;padding:0 12px;
@@ -295,8 +292,13 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
 }
 .mini-ev-card:active{transform:scale(.97);}
 
-/* === DISCOVER / POST / ME / SETTINGS / ONBOARDING / SHEETS / TOAST === */
-/* Kept same as v5 (no functional changes) */
+.you-pin{
+  width:16px;height:16px;background:var(--rust);border-radius:50%;
+  border:3px solid white;box-shadow:0 0 0 8px rgba(196,98,45,.2);
+}
+
+/* === DISCOVER / POST / ME / SETTINGS / ONBOARDING === */
+/* (kept from your original; omitted here only if unchanged would be risky — but we keep the same styles) */
 .disc-toggle{margin:14px 16px 4px;display:flex;background:var(--sand);border-radius:10px;padding:3px;}
 .disc-opt{flex:1;text-align:center;padding:8px;font-size:13px;cursor:pointer;border-radius:8px;font-weight:500;color:var(--brown);transition:all .15s;}
 .disc-opt.active{background:var(--card-bg);color:var(--rust);box-shadow:0 1px 4px rgba(0,0,0,.1);}
@@ -447,6 +449,7 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
 .ob-dot{width:8px;height:8px;border-radius:4px;background:var(--sand);transition:all .2s;}
 .ob-dot.active{width:24px;background:var(--rust);}
 
+/* Location sheet */
 .loc-input-wrap{position:relative;margin-bottom:12px;}
 .loc-input{
   width:100%;padding:11px 12px 11px 36px;border:0.5px solid var(--border-md);
@@ -460,11 +463,15 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
   border-radius:10px;font-family:var(--font-main);font-size:13px;
   color:var(--rust-dark);font-weight:500;cursor:pointer;margin-bottom:14px;
 }
-.loc-item{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:0.5px solid var(--border);cursor:pointer;}
+.loc-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 0;border-bottom:0.5px solid var(--border);cursor:pointer;
+}
 .loc-item:last-child{border:none;}
 .loc-nm{font-size:13px;color:var(--dark);font-weight:500;}
 .loc-rm{color:var(--gray);font-size:14px;padding:2px 6px;}
 
+/* === EVENT DETAIL SHEET (kept) === */
 .ev-hero{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px;}
 .ev-big-emoji{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;}
 .ev-info-grid{
@@ -499,6 +506,7 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
 .qa-send{background:var(--rust);color:white;border:none;padding:0 16px;border-radius:9px;cursor:pointer;font-weight:600;font-size:13px;}
 .sheet-actions{display:flex;gap:10px;margin-top:18px;}
 
+/* === OVERLAYS === */
 .overlay{
   position:fixed;inset:0;background:rgba(44,26,14,.5);z-index:200;display:none;
   opacity:0;transition:opacity .3s;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
@@ -595,8 +603,7 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
     <h2>How far will you travel?</h2>
     <p>You can change this any time in settings.</p>
     <span class="ob-rv" id="ob-rv">2 miles</span>
-    <input type="range" class="ob-range" min="1" max="10" value="2" step="1"
-      oninput="document.getElementById('ob-rv').textContent=this.value+' miles';prefs.radius=+this.value;">
+    <input type="range" class="ob-range" min="1" max="10" value="2" step="1" oninput="document.getElementById('ob-rv').textContent=this.value+' miles';prefs.radius=+this.value;">
     <button class="ob-next" onclick="finishOB()">Take me to Turnout ✓</button>
   </div>
   <div class="ob-dots">
@@ -612,10 +619,7 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
   <div id="quiet-pill" class="quiet-pill">🌙 Quiet</div>
   <div class="loc-pill" onclick="openLocSheet()"><span>📍</span><span id="loc-txt">Bicester</span></div>
   <button class="bell-btn" onclick="toggleNotif(event)">
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-    </svg>
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
     <div id="bell-dot"></div>
   </button>
 </header>
@@ -631,7 +635,6 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
       <button class="sort-pill" onclick="setSort('Nearest',this)">Nearest</button>
       <button class="sort-pill" onclick="setSort('Popular',this)">Most popular</button>
     </div>
-
     <div class="filter-strip" id="fstrip">
       <div class="chip active" onclick="setFilter('All',this)">All</div>
       <div class="chip" onclick="setFilter('Coffee',this)">☕ Coffee</div>
@@ -643,17 +646,14 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
       <div class="chip" onclick="setFilter('Family',this)">👶 Family</div>
       <div class="chip" onclick="setFilter('Featured',this)">✦ Featured</div>
     </div>
-
     <div class="sec-hdr"><h2>This weekend</h2><a onclick="showToast('Showing all events')">see all</a></div>
     <div id="feed-list"></div>
-
     <div id="feed-empty" style="display:none;">
       <div class="empty-state">
         <div class="empty-big" id="empty-ico">🔍</div>
         <h3 id="empty-ttl">Nothing here yet</h3>
         <p id="empty-sub">Be the first to post one — it takes 30 seconds</p>
-        <button class="btn-main" style="max-width:220px;margin:0 auto;display:block"
-          onclick="switchTab('post',document.getElementById('ntab-post'))">Post an event →</button>
+        <button class="btn-main" style="max-width:220px;margin:0 auto;display:block" onclick="switchTab('post',document.getElementById('ntab-post'))">Post an event →</button>
       </div>
     </div>
   </div>
@@ -678,6 +678,13 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
       <button class="map-ctrl-btn" onclick="goToMe()">◎</button>
     </div>
 
+    <div id="map-legend" style="position:absolute;bottom:calc(120px + env(safe-area-inset-bottom));left:12px;background:rgba(253,246,238,0.95);border-radius:10px;padding:8px 10px;z-index:100;border:0.5px solid var(--border);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
+      <div style="font-size:10px;font-weight:600;color:var(--brown);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Map key</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dark);margin-bottom:3px"><div style="width:10px;height:10px;border-radius:50%;background:#C4622D"></div>Today</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dark);margin-bottom:3px"><div style="width:10px;height:10px;border-radius:50%;background:#8B5E3C"></div>Upcoming</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dark)"><div style="width:10px;height:10px;border-radius:50%;background:#C4622D;opacity:.4;border:1px dashed #C4622D"></div>Your radius</div>
+    </div>
+
     <button id="near-me-btn" onclick="nearMeNow()">📍 What's on near me now</button>
     <button id="plan-day-btn" onclick="planMyDay()">🗺 Plan my day</button>
 
@@ -691,7 +698,6 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
       <div class="disc-opt active" id="disc-vibe" onclick="discMode('vibe')">By vibe</div>
       <div class="disc-opt" id="disc-date" onclick="discMode('date')">By date</div>
     </div>
-
     <div id="disc-vibe-pane">
       <div class="mood-grid">
         <div class="mood-tile" onclick="moodPick('Outdoor','🌿','Get outside')"><span class="mood-icon">🌿</span><h4>Get outside</h4><p>8 events this weekend</p></div>
@@ -705,7 +711,6 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
         <button onclick="surpriseMe()" style="width:100%;padding:14px;border-radius:12px;background:var(--dark);color:var(--gold);border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font-main);">🎲 Surprise me — pick something random</button>
       </div>
     </div>
-
     <div id="disc-results" style="display:none;padding-bottom:10px;">
       <div class="disc-results-hdr">
         <button class="back-btn" onclick="discBack()">← Back</button>
@@ -713,7 +718,6 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
       </div>
       <div id="disc-res-list" style="padding:0 16px;"></div>
     </div>
-
     <div id="disc-date-pane" style="display:none;">
       <div class="tl-view" id="tl-content"></div>
     </div>
@@ -728,22 +732,18 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
         <div class="acct-opt" id="acct-bus" onclick="setAcct('business')">🏢 Business</div>
       </div>
     </div>
-
     <div class="smart-box">
-      <textarea id="smart-in" rows="3" placeholder="Just type it... e.g. 'coffee morning at The Angel Saturday 10am free'"></textarea>
+      <textarea id="smart-in" rows="3" placeholder="Just type it... e.g. 'coffee morning at The Crown Saturday 10am free'"></textarea>
       <button class="parse-btn" onclick="doParse()">Parse it ✨</button>
       <div class="parse-ok" id="parse-ok">We filled in what we could — check it looks right ✓</div>
     </div>
-
     <div class="div-txt">— or fill in manually —</div>
     <div class="form-grp"><label>Event name *</label><input type="text" id="f-name" placeholder="e.g. Sunday morning coffee meetup"></div>
-    <div class="form-grp"><label>Venue / address *</label><input type="text" id="f-venue" placeholder="e.g. The Angel, High Street"></div>
-
+    <div class="form-grp"><label>Venue / address *</label><input type="text" id="f-venue" placeholder="e.g. The Crown, High Street"></div>
     <div style="display:flex;gap:0;">
       <div class="form-grp" style="flex:1;padding-right:8px;"><label>Date *</label><input type="date" id="f-date"></div>
       <div class="form-grp" style="flex:1;padding-left:8px;"><label>Time *</label><input type="time" id="f-time"></div>
     </div>
-
     <div class="form-grp"><label>Category</label>
       <div class="cat-grid">
         <div class="cat-tile" onclick="selCat('Coffee',this)">☕ Coffee</div>
@@ -757,7 +757,6 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
         <div class="cat-tile" onclick="selCat('Other',this)">✦ Other</div>
       </div>
     </div>
-
     <div class="form-grp"><label>Cost</label>
       <div style="display:flex;gap:8px;align-items:center;">
         <div class="yn-toggle" style="width:110px;">
@@ -767,7 +766,39 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
         <input type="text" id="f-price" placeholder="e.g. £5" style="display:none;flex:1;">
       </div>
     </div>
-
+    <div class="form-grp"><label>Outdoors?</label>
+      <div class="yn-toggle">
+        <div class="yn-opt" onclick="setYN('outdoor',true,this)">Yes</div>
+        <div class="yn-opt active" onclick="setYN('outdoor',false,this)">No</div>
+      </div>
+      <div class="reveal" id="outdoor-note"><p style="font-size:12px;color:var(--brown);margin-top:6px;">🌤 We'll add weather info automatically</p></div>
+    </div>
+    <div class="form-grp"><label>Capacity limit?</label>
+      <div class="yn-toggle">
+        <div class="yn-opt" onclick="setYN('cap',true,this)">Yes</div>
+        <div class="yn-opt active" onclick="setYN('cap',false,this)">No</div>
+      </div>
+      <div class="reveal" id="cap-reveal"><input type="number" id="f-cap" placeholder="Max attendees" style="margin-top:8px;"></div>
+    </div>
+    <div class="form-grp"><label>What to bring (optional)</label><textarea id="f-bring" rows="2" placeholder="e.g. cash only, bring a bag, dogs welcome"></textarea></div>
+    <div class="form-grp"><label>Description (optional)</label><textarea id="f-desc" rows="3" placeholder="Tell people what to expect..."></textarea></div>
+    <div class="form-grp"><label>Recurring?</label>
+      <div class="yn-toggle">
+        <div class="yn-opt" onclick="setYN('recur',true,this)">Yes</div>
+        <div class="yn-opt active" onclick="setYN('recur',false,this)">No</div>
+      </div>
+      <div class="reveal" id="recur-reveal">
+        <select id="f-recur" style="margin-top:8px;"><option>Weekly</option><option>Fortnightly</option><option>Monthly</option></select>
+        <p style="font-size:11px;color:var(--brown);margin-top:6px;">We'll auto-post this for you each time 🔁</p>
+      </div>
+    </div>
+    <div class="bus-panel" id="bus-panel">
+      <p>Business extras</p>
+      <label><input type="checkbox" id="bus-link-cb"> Add ticket / booking link</label>
+      <div class="reveal" id="bus-link-reveal"><input type="url" placeholder="https://..." style="width:100%;padding:8px;border:0.5px solid var(--border-md);border-radius:7px;margin-top:4px;font-size:12px;"></div>
+      <label><input type="checkbox" onchange="showToast('Boost enabled ��')"> Boost this event on map</label>
+      <label><input type="checkbox"> Notify my followers</label>
+    </div>
     <div class="form-grp"><button class="btn-main" onclick="submitPost()">Post to Turnout 🌟</button></div>
   </div>
 
@@ -788,6 +819,47 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
         </div>
       </div>
 
+      <div class="year-card">
+        <h3>Your 2026 so far ✨</h3>
+        <div class="year-grid">
+          <div class="year-stat"><div class="year-n">14</div><div class="year-l">events attended</div></div>
+          <div class="year-stat"><div class="year-n">☕</div><div class="year-l">favourite type</div></div>
+          <div class="year-stat"><div class="year-n">3</div><div class="year-l">events hosted</div></div>
+          <div class="year-stat"><div class="year-n">6.2mi</div><div class="year-l">furthest event</div></div>
+        </div>
+      </div>
+
+      <div class="me-sec">
+        <h3>How Turnout notifies you</h3>
+        <div class="notif-row">
+          <div><div class="lbl">📅 Friday digest</div><div class="sub">Weekend roundup every Friday at 9am</div></div>
+          <div class="tp on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="notif-row">
+          <div><div class="lbl">⚡ Same-day nudge</div><div class="sub">Events starting within 3 hours (9am–6pm)</div></div>
+          <div class="tp on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="notif-row">
+          <div><div class="lbl">👥 Friends posting</div><div class="sub">When someone you follow posts</div></div>
+          <div class="tp on" onclick="this.classList.toggle('on')"></div>
+        </div>
+      </div>
+
+      <div class="me-sec">
+        <h3>My interests</h3>
+        <div class="int-grid">
+          <div class="int-tile on" onclick="toggleInt(this)">☕ Coffee</div>
+          <div class="int-tile on" onclick="toggleInt(this)">🍺 Pubs</div>
+          <div class="int-tile" onclick="toggleInt(this)">🛒 Markets</div>
+          <div class="int-tile on" onclick="toggleInt(this)">🎶 Music</div>
+          <div class="int-tile" onclick="toggleInt(this)">🏃 Sport</div>
+          <div class="int-tile" onclick="toggleInt(this)">🎨 Arts</div>
+          <div class="int-tile" onclick="toggleInt(this)">👶 Family</div>
+          <div class="int-tile" onclick="toggleInt(this)">✦ Featured</div>
+          <div class="int-tile" onclick="toggleInt(this)">🎉 Social</div>
+        </div>
+      </div>
+
       <div class="me-sec">
         <h3>Notification radius</h3>
         <p style="font-size:12px;color:var(--brown);margin-bottom:8px;">Notify me of new events within this distance</p>
@@ -802,7 +874,6 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
         <h3>Saved events</h3>
         <div id="me-saved"></div>
       </div>
-
       <div class="me-sec">
         <h3>My posted events</h3>
         <div id="me-posted"></div>
@@ -812,7 +883,6 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
     <!-- SETTINGS -->
     <div class="settings-view" id="settings-view">
       <div class="set-hdr"><button class="back-arrow" onclick="closeSettings()">←</button><h3>Settings</h3></div>
-
       <div class="sg"><h4>My feed</h4><div class="sc">
         <div class="sr col"><span class="sr-lbl">Sort order</span>
           <div class="seg">
@@ -821,7 +891,13 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
             <div class="seg-opt" onclick="segSet(this,'sort','Popular')">Popular</div>
           </div>
         </div>
-
+        <div class="sr col"><span class="sr-lbl">Text size</span>
+          <div class="seg">
+            <div class="seg-opt active" onclick="applySize('std',this)">Standard</div>
+            <div class="seg-opt" onclick="applySize('lg',this)">Large</div>
+            <div class="seg-opt" onclick="applySize('xl',this)">Extra large</div>
+          </div>
+        </div>
         <div class="sr col"><span class="sr-lbl">Appearance</span>
           <div class="seg">
             <div class="seg-opt active" onclick="applyTheme('light',this)">Light</div>
@@ -829,13 +905,15 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
             <div class="seg-opt" onclick="applyTheme('system',this)">System</div>
           </div>
         </div>
-
         <div class="sr col"><span class="sr-lbl">Accent colour</span>
           <div class="swatch-row" id="swatches"></div>
         </div>
       </div></div>
 
       <div class="sg"><h4>Notifications</h4><div class="sc">
+        <div class="sr"><span class="sr-lbl">📅 Friday digest</span><div class="tp on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="sr"><span class="sr-lbl">⚡ Same-day nudge</span><div class="tp on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="sr"><span class="sr-lbl">👥 Friends posting</span><div class="tp on" onclick="this.classList.toggle('on')"></div></div>
         <div class="sr col"><span class="sr-lbl">🌙 Quiet hours</span>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <div class="tp on" id="quiet-tp" onclick="toggleQuiet()"></div>
@@ -845,6 +923,66 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
             <input type="time" value="08:00" id="quiet-to" style="padding:6px 8px;border:0.5px solid var(--border-md);border-radius:7px;font-size:12px;color:var(--dark);background:var(--card-bg);width:88px;">
           </div>
         </div>
+      </div></div>
+
+      <div class="sg"><h4>My preferences</h4><div class="sc">
+        <div class="sr col"><span class="sr-lbl">Days I'm free</span>
+          <div class="day-grid">
+            <div class="day-btn on" onclick="this.classList.toggle('on')">Mo</div>
+            <div class="day-btn on" onclick="this.classList.toggle('on')">Tu</div>
+            <div class="day-btn on" onclick="this.classList.toggle('on')">We</div>
+            <div class="day-btn on" onclick="this.classList.toggle('on')">Th</div>
+            <div class="day-btn on" onclick="this.classList.toggle('on')">Fr</div>
+            <div class="day-btn on" onclick="this.classList.toggle('on')">Sa</div>
+            <div class="day-btn on" onclick="this.classList.toggle('on')">Su</div>
+          </div>
+        </div>
+
+        <div class="sr col"><span class="sr-lbl">Time of day</span>
+          <div class="seg">
+            <div class="seg-opt active" onclick="segSet(this,'timeofday','All')">All day</div>
+            <div class="seg-opt" onclick="segSet(this,'timeofday','Morning')">Morning</div>
+            <div class="seg-opt" onclick="segSet(this,'timeofday','Evening')">Evening</div>
+          </div>
+        </div>
+
+        <div class="sr col"><span class="sr-lbl">Max price</span>
+          <div class="seg">
+            <div class="seg-opt active" onclick="segSet(this,'budget','Any')">Any</div>
+            <div class="seg-opt" onclick="segSet(this,'budget','0')">Free</div>
+            <div class="seg-opt" onclick="segSet(this,'budget','5')">Up to £5</div>
+            <div class="seg-opt" onclick="segSet(this,'budget','15')">Up to £15</div>
+          </div>
+        </div>
+
+        <div class="sr"><div><span class="sr-lbl">👨‍👩‍👧 Family mode</span><div class="sr-sub">Prioritise family events, hide late-night</div></div>
+          <div class="tp" id="family-tp" onclick="this.classList.toggle('on');prefs.familyMode=this.classList.contains('on');renderFeed();saveP()"></div>
+        </div>
+      </div></div>
+
+      <div class="sg"><h4>Accessibility</h4><div class="sc">
+        <div class="sr"><div><span class="sr-lbl">♿ Wheelchair access only</span></div><div class="tp" onclick="this.classList.toggle('on')"></div></div>
+        <div class="sr"><div><span class="sr-lbl">🦻 Hearing loop</span></div><div class="tp" onclick="this.classList.toggle('on')"></div></div>
+        <div class="sr col"><span class="sr-lbl">Reduce motion</span>
+          <div class="seg">
+            <div class="seg-opt active" onclick="setMotion('normal',this)">Normal</div>
+            <div class="seg-opt" onclick="setMotion('reduce',this)">Reduce</div>
+          </div>
+        </div>
+      </div></div>
+
+      <div class="sg"><h4>Privacy</h4><div class="sc">
+        <div class="sr"><span class="sr-lbl">Show me as going</span><div class="tp on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="sr"><span class="sr-lbl">Show my posted events</span><div class="tp on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="sr" onclick="showToast('Preparing your data export...')"><span class="sr-lbl">Download my data</span><span style="color:var(--brown)">→</span></div>
+        <div class="sr del-btn" onclick="if(confirm('Delete your account? This cannot be undone.'))showToast('Account deleted.')"><span>Delete my account</span><span>→</span></div>
+      </div></div>
+
+      <div class="sg"><h4>About</h4><div class="sc">
+        <div class="sr"><span class="sr-lbl">Version</span><span style="color:var(--brown);font-size:12px;">1.1.0</span></div>
+        <div class="sr" onclick="showToast('Opening terms...')"><span class="sr-lbl">Terms of service</span><span style="color:var(--brown)">→</span></div>
+        <div class="sr" onclick="showToast('Opening privacy policy...')"><span class="sr-lbl">Privacy policy</span><span style="color:var(--brown)">→</span></div>
+        <div class="sr" onclick="const m=prompt('Send feedback:');if(m)showToast('Thanks! 💌')"><span class="sr-lbl">Send feedback</span><span style="color:var(--brown)">→</span></div>
       </div></div>
     </div>
   </div>
@@ -881,6 +1019,9 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
   <div class="np-item" style="border-left:3px solid var(--rust);" onclick="closeNotif();switchTab('discover',document.getElementById('ntab-discover'))">
     <strong>🗓 Friday digest</strong>5 things happening near you this weekend<br><small>2h ago</small>
   </div>
+  <div class="np-item" style="border-left:3px solid var(--gold);" onclick="closeNotif();showToast('Try the Map tab — it works now 😄')">
+    <strong>🗺 Map improved</strong>Radius filtering + location search added<br><small>Today</small>
+  </div>
 </div>
 
 <!-- OVERLAY + SHEET -->
@@ -910,7 +1051,7 @@ let prefs = {
   accent:'#C4622D',
   accentLight:'#FAE8DC',
   accentDark:'#993C1D',
-  radius:2,
+  radius:2,                 // miles
   location:'Bicester',
   sort:'Soonest',
   filter:'All',
@@ -937,18 +1078,24 @@ let obStep = 1;
 
 /* ============================
    DATA (sample events near Bicester)
+   (You can replace with your real API later)
 ============================ */
 const EVENTS = [
   {id:1, name:"Coffee Morning", venue:"Bicester Village", date:"Sat 21 Mar", time:"9:00am", price:"Free", priceN:0, cat:"Coffee", icon:"☕", lat:51.8929,lng:-1.1515, going:12, attendees:["SA","BJ","TM","LC","PW"], bring:"your own mug", cap:null, family:true, popular:85, today:false, past:false, banner:false, featured:false,
-   desc:"Come for a cuppa and a catch-up! Everyone welcome.", qa:[], photos:[]},
+   desc:"Come for a cuppa and a catch-up! Everyone welcome." , qa:[], photos:[]},
+
   {id:2, name:"Pub Quiz Night", venue:"The Angel", date:"Thu 19 Mar", time:"7:30pm", price:"£2", priceN:2, cat:"Pubs", icon:"🍺", lat:51.8997,lng:-1.1538, going:34, attendees:["RP","KD","MF","AH","SN"], bring:"teams of up to 6", cap:{now:48,max:60}, family:false, popular:92, today:true, past:false, banner:false, featured:false,
-   desc:"Quiz night with cash prize for the winners. Book a table.", qa:[], photos:[]},
+   desc:"Quiz night with cash prize for the winners. Book a table to avoid disappointment.", qa:[], photos:[]},
+
   {id:3, name:"Farmers Market", venue:"Garth Park", date:"Sun 22 Mar", time:"8:00am", price:"Free", priceN:0, cat:"Markets", icon:"🛒", lat:51.8994,lng:-1.1506, going:67, attendees:[], bring:"bring a bag", cap:null, family:true, popular:70, today:false, past:false, banner:false, featured:false,
-   desc:"Local producers, artisan bread, veg, pastries and more.", qa:[], photos:[]},
+   desc:"Local producers, artisan bread, veg, pastries and more. Rain or shine.", qa:[], photos:[]},
+
   {id:4, name:"Park Run", venue:"Bicester Sports Centre", date:"Sun 22 Mar", time:"9:00am", price:"Free", priceN:0, cat:"Sport", icon:"🏃", lat:51.9053,lng:-1.1642, going:31, attendees:[], bring:"running shoes", cap:null, family:true, popular:75, today:false, past:false, banner:false, featured:false,
    desc:"Free 5km run. All paces welcome.", qa:[], photos:[]},
+
   {id:5, name:"Craft Circle", venue:"Bicester Library", date:"Wed 18 Mar", time:"2:00pm", price:"Free", priceN:0, cat:"Arts", icon:"🎨", lat:51.8968,lng:-1.1519, going:8, attendees:[], bring:"your current project", cap:{now:8,max:12}, family:false, popular:40, today:false, past:false, banner:false, featured:false,
    desc:"Bring knitting, crochet or any craft project. Beginners welcome.", qa:[], photos:[]},
+
   {id:6, name:"Live Acoustic Night", venue:"The Nightingale", date:"Sat 21 Mar", time:"8:00pm", price:"£5", priceN:5, cat:"Music", icon:"🎶", lat:51.9009,lng:-1.1489, going:41, attendees:[], bring:null, cap:null, family:false, popular:88, today:false, past:false, banner:false, featured:true,
    desc:"Local acoustic acts. Arrive early for a seat.", qa:[], photos:[]},
 ];
@@ -957,7 +1104,7 @@ const AVC = ['#C4622D','#4A7C59','#7B5EA7','#D4A847','#E63946','#2E7BAC'];
 const CAT_BG = {Coffee:'#FAE8DC',Pubs:'#FDF5E0',Markets:'#E8F4EC',Music:'#F0EBF8',Sport:'#E8F4EC',Arts:'#FAE8DC',Family:'#FDF5E0',Featured:'#FDF5E0',Social:'#E6F1FB'};
 
 /* ============================
-   UTIL: Distance
+   UTIL: Distance + parsing time
 ============================ */
 function milesBetween(lat1,lng1,lat2,lng2){
   const R=6371e3;
@@ -997,19 +1144,19 @@ function applyPrefs(){
 
   document.documentElement.setAttribute('data-theme',t);
 
+  document.body.classList.remove('text-lg','text-xl');
+  if(prefs.textSize==='lg')document.body.classList.add('text-lg');
+  if(prefs.textSize==='xl')document.body.classList.add('text-xl');
+
   document.documentElement.style.setProperty('--rust',prefs.accent);
   document.documentElement.style.setProperty('--rust-light',prefs.accentLight||'#FAE8DC');
   document.documentElement.style.setProperty('--rust-dark',prefs.accentDark||'#993C1D');
 
   document.body.classList.toggle('reduce-motion',prefs.reduceMotion);
 
-  const loc=document.getElementById('loc-txt');
-  if(loc) loc.textContent=prefs.location;
-
-  const rs=document.getElementById('rad-slider');
-  const rv=document.getElementById('rad-val');
-  if(rs) rs.value=prefs.radius;
-  if(rv) rv.textContent=prefs.radius+' miles';
+  document.getElementById('loc-txt').textContent=prefs.location;
+  document.getElementById('rad-slider').value = prefs.radius;
+  document.getElementById('rad-val').textContent = prefs.radius+' miles';
 
   updateQuietPill();
   renderSwatches();
@@ -1018,7 +1165,13 @@ function applyPrefs(){
 /* ============================
    NAV
 ============================ */
-const TIPS={feed:"Tap chips to filter by what you fancy 👆",map:"Tap any pin to see event details 📍",discover:"Pick a mood — we'll find your match ✨",post:"Just type what you're doing — we'll fill in the rest 🖊",me:"Settings + saved events live here ⚙️"};
+const TIPS={
+  feed:"Tap chips to filter by what you fancy 👆",
+  map:"Tap any pin to see event details 📍",
+  discover:"Pick a mood — we'll find your match ✨",
+  post:"Just type what you're doing — we'll fill in the rest 🖊",
+  me:"Tap tiles to tell us what you like 🎯"
+};
 function switchTab(tab,el){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.ntab').forEach(n=>n.classList.remove('active'));
@@ -1030,27 +1183,30 @@ function switchTab(tab,el){
   document.getElementById('main').scrollTop=0;
 
   const tipKey='to_tip_'+tab;
-  if(!localStorage.getItem(tipKey)){localStorage.setItem(tipKey,'1');setTimeout(()=>showTip(tab),700);}
+  if(!localStorage.getItem(tipKey)){
+    localStorage.setItem(tipKey,'1');
+    setTimeout(()=>showTip(tab),700);
+  }
 
   if(tab==='feed') renderFeed();
-  if(tab==='map'){
+  if(tab==='map') {
     initMap();
-
-    // iOS/PWA reliability: wait for layout+paint then invalidate size
+    // Critical: invalidate AFTER the view is visible.
     requestAnimationFrame(()=>{
-      requestAnimationFrame(()=>{
+      setTimeout(()=>{
         if(lmap){
-          lmap.invalidateSize(true);
-          setTimeout(()=>lmap.invalidateSize(true), 250);
+          lmap.invalidateSize();
+          // if still blank due to font/layout, do one more pass
+          setTimeout(()=>lmap.invalidateSize(), 200);
         }
-      });
+      }, 50);
     });
   }
   if(tab==='discover') renderTimeline();
   if(tab==='me') renderMe();
 }
 function showTip(tab){
-  const targets={feed:'fstrip',map:'map-chips',discover:'disc-vibe-pane',post:'smart-in',me:'me-main'};
+  const targets={feed:'fstrip',map:'map-chips',discover:'disc-vibe-pane',post:'smart-box',me:'me-main'};
   const t=document.getElementById(targets[tab]);
   if(!t)return;
   const tt=document.createElement('div');
@@ -1067,38 +1223,57 @@ function showTip(tab){
 }
 
 /* ============================
-   FEED
+   FEED (kept similar, but distance computed)
 ============================ */
 function renderFeed(){
   let list=[...EVENTS];
 
+  // Compute distances for display + sorting
   list.forEach(ev=>{
     const d=computeDistanceForEv(ev);
     ev._dist = d==null? null : Math.round(d*10)/10;
   });
 
+  // Filter
   if(prefs.filter!=='All'){
-    list=list.filter(e=>e.cat===prefs.filter||(prefs.filter==='Featured'&&(e.featured||e.banner)));
+    list=list.filter(e=>
+      e.cat===prefs.filter ||
+      (prefs.filter==='Featured'&&(e.featured||e.banner))
+    );
   }
 
+  // Budget
+  const bl=prefs.budget==='0'?0:prefs.budget==='5'?5:prefs.budget==='15'?15:9999;
+
+  // Sort
   if(prefs.sort==='Nearest'){
     list.sort((a,b)=>(a._dist??9999)-(b._dist??9999));
-  }else if(prefs.sort==='Popular'){
+  } else if(prefs.sort==='Popular'){
     list.sort((a,b)=>b.popular-a.popular);
-  }else{
+  } else {
     list.sort((a,b)=>a.id-b.id);
+  }
+
+  if(prefs.familyMode){
+    const late=e=>['7:30pm','8:00pm','7:00pm'].includes(e.time);
+    list.sort((a,b)=>late(a)-late(b));
   }
 
   const con=document.getElementById('feed-list');
   const emp=document.getElementById('feed-empty');
   con.innerHTML='';
 
-  if(!list.length){con.style.display='none';emp.style.display='block';return;}
+  if(!list.length){
+    con.style.display='none';emp.style.display='block';return;
+  }
   con.style.display='block';emp.style.display='none';
 
   list.forEach(ev=>{
+    const ob=ev.priceN>bl;
+    const late=prefs.familyMode&&['7:30pm','8:00pm','7:00pm'].includes(ev.time);
+
     const card=document.createElement('div');
-    card.className=['event-card',ev.banner?'card-banner':'',ev.featured?'card-acoustic':''].filter(Boolean).join(' ');
+    card.className=['event-card',ev.banner?'card-banner':'',ev.featured?'card-acoustic':'',ob||late?'muted':''].filter(Boolean).join(' ');
 
     const avs=ev.attendees.slice(0,5).map((a,i)=>`<div class="av" style="background:${AVC[i%AVC.length]}">${a}</div>`).join('');
     const mav=ev.going>5?`<div class="av" style="background:var(--sand);color:var(--mid)">+${ev.going-5}</div>`:'';
@@ -1107,12 +1282,16 @@ function renderFeed(){
     if(ev.cap){
       const p=Math.round(ev.cap.now/ev.cap.max*100);
       const r=ev.cap.max-ev.cap.now;
-      const bg=ev.cap.now>=ev.cap.max?'<span class="badge badge-full">Waitlist</span>':(p>=80?`<span class="badge badge-last">⚡ Last ${r} spot${r>1?'s':''}</span>`:'');
+      const bg=ev.cap.now>=ev.cap.max
+        ? '<span class="badge badge-full">Waitlist</span>'
+        : (p>=80?`<span class="badge badge-last">⚡ Last ${r} spot${r>1?'s':''}</span>`:'');
       capH=`<div class="cap-wrap"><div class="cap-bar"><div class="cap-fill" style="width:${p}%"></div></div><div class="cap-lbl"><span style="font-size:10px;color:var(--brown)">${ev.cap.now}/${ev.cap.max} spots</span>${bg}</div></div>`;
     }
 
     const tod=ev.today?'<span class="pill pill-today">Today</span>':'';
-    const distText=ev._dist==null?'—':ev._dist;
+    const fam=ev.family&&prefs.familyMode?'<span class="pill pill-family">🧒</span>':'';
+    const bdn=ob?'<div style="font-size:10px;color:var(--gray);font-style:italic;margin-top:3px;">above your usual budget</div>':'';
+    const distText = ev._dist==null ? '—' : ev._dist;
 
     card.innerHTML=
       `<div class="card-menu-btn" onclick="openMenu(event,this)">⋯<div class="dropdown"><div class="drop-item" onclick="shareEv(event,'${ev.name}')">📤 Share</div><div class="drop-item" onclick="hideCard(event,this)">🙈 Not interested</div><div class="drop-item" onclick="reportCard(event)">🚩 Report</div></div></div>`+
@@ -1121,13 +1300,15 @@ function renderFeed(){
         `<div class="card-meta">${ev.venue} · ${ev.date} · ${ev.time}</div>`+
         `<strong class="card-name">${ev.name}</strong>`+
         (ev.bring?`<div class="bring-line">🎒 ${ev.bring}</div>`:'')+
-        `<div class="pills"><span class="pill pill-cat">${ev.cat}</span><span class="pill pill-price">${ev.price}</span>${tod}</div>`+
+        `<div class="pills"><span class="pill pill-cat">${ev.cat}</span><span class="pill pill-price">${ev.price}</span>${tod}${fam}</div>`+
         `<div class="att-row"><div class="av-stack">${avs}${mav}</div><span class="going-n">${ev.going} going</span></div>`+
-        capH+
+        capH+bdn+
         `<div class="card-footer"><span class="card-ft-l">📍 ${distText} mi</span><button class="save-btn ${savedEvs.has(ev.id)?'saved':''}" onclick="toggleSave(event,${ev.id},this)">${savedEvs.has(ev.id)?'♥ saved':'♥ save'}</button></div>`+
       `</div>`;
 
-    card.onclick=e=>{if(!e.target.closest('.card-menu-btn')&&!e.target.closest('.save-btn'))openEvSheet(ev);};
+    card.onclick=e=>{
+      if(!e.target.closest('.card-menu-btn')&&!e.target.closest('.save-btn'))openEvSheet(ev);
+    };
     con.appendChild(card);
   });
 }
@@ -1150,13 +1331,37 @@ function toggleSave(e,id,el){
   if(savedEvs.has(id)){savedEvs.delete(id);el.textContent='♥ save';el.classList.remove('saved');showToast('Removed from saved');}
   else{savedEvs.add(id);el.textContent='♥ saved';el.classList.add('saved');showToast('Saved! 🔖');}
 }
-function openMenu(e,el){e.stopPropagation();const d=el.querySelector('.dropdown');const v=d.style.display==='block';document.querySelectorAll('.dropdown').forEach(x=>x.style.display='none');d.style.display=v?'none':'block';}
-function shareEv(e,name){e.stopPropagation();if(navigator.share)navigator.share({title:name,url:window.location.href});else{navigator.clipboard&&navigator.clipboard.writeText(window.location.href);showToast('Link copied! 📋');}document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');}
-function hideCard(e,el){e.stopPropagation();const c=el.closest('.event-card');c.style.transform='translateY(-16px)';c.style.opacity='0';setTimeout(()=>c.remove(),300);showToast('Got it — showing less of this type');}
-function reportCard(e){e.stopPropagation();document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');showToast("Reported — we'll review this. Thanks.");}
+function openMenu(e,el){
+  e.stopPropagation();
+  const d=el.querySelector('.dropdown');
+  const v=d.style.display==='block';
+  document.querySelectorAll('.dropdown').forEach(x=>x.style.display='none');
+  d.style.display=v?'none':'block';
+}
+function shareEv(e,name){
+  e.stopPropagation();
+  if(navigator.share)navigator.share({title:name,url:window.location.href});
+  else{
+    navigator.clipboard&&navigator.clipboard.writeText(window.location.href);
+    showToast('Link copied! 📋');
+  }
+  document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');
+}
+function hideCard(e,el){
+  e.stopPropagation();
+  const c=el.closest('.event-card');
+  c.style.transform='translateY(-16px)';c.style.opacity='0';
+  setTimeout(()=>c.remove(),300);
+  showToast('Got it — showing less of this type');
+}
+function reportCard(e){
+  e.stopPropagation();
+  document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');
+  showToast("Reported — we'll review this. Thanks.");
+}
 
 /* ============================
-   MAP (FIXED + guarded init)
+   MAP (fixed & improved)
 ============================ */
 function initMap(){
   if(lmap) return;
@@ -1167,33 +1372,34 @@ function initMap(){
     return;
   }
 
-  // Guard: if iOS hasn't laid out the map container yet, retry shortly
-  const r = el.getBoundingClientRect();
-  if(r.height < 50){
-    setTimeout(initMap, 120);
-    return;
-  }
-
-  lmap=L.map('leaflet-map',{zoomControl:false,attributionControl:true,tap:false}).setView([userLat,userLng],14);
+  lmap=L.map('leaflet-map',{
+    zoomControl:false,
+    attributionControl:true,
+    tap:false
+  }).setView([userLat,userLng],14);
 
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
     attribution:'© OpenStreetMap contributors © CARTO',
-    subdomains:'abcd',maxZoom:19,detectRetina:true
+    subdomains:'abcd',
+    maxZoom:19,
+    detectRetina:true
   }).addTo(lmap);
 
   placeUserOnMap(userLat,userLng);
   renderMapPins('All');
   renderMapStrip('All');
 
+  // Do NOT auto-watch GPS forever without permission context; we’ll do a single fix + optional live follow.
   startGPSOnce();
 }
+
 function placeUserOnMap(lat,lng){
   userLat=lat;userLng=lng;
 
   if(userMarker) lmap.removeLayer(userMarker);
   if(userCircle) lmap.removeLayer(userCircle);
 
-  const youHtml='<div style="width:16px;height:16px;background:#C4622D;border-radius:50%;border:3px solid white;box-shadow:0 0 0 0 rgba(196,98,45,0.5);animation:youPulse 2s ease-out infinite;"></div>';
+  const youHtml='<div class="you-pin" style="animation:youPulse 2s ease-out infinite;"></div>';
   const youIcon=L.divIcon({className:'',html:youHtml,iconSize:[16,16],iconAnchor:[8,8]});
   userMarker=L.marker([lat,lng],{icon:youIcon,zIndexOffset:1000}).addTo(lmap);
 
@@ -1203,58 +1409,111 @@ function placeUserOnMap(lat,lng){
     fillColor:'#C4622D',fillOpacity:0.06,dashArray:'8,6',interactive:false
   }).addTo(lmap);
 }
+
 function updateRadiusCircle(){
   if(!lmap||!userCircle) return;
   userCircle.setRadius(prefs.radius*1609.34);
 }
+
 function startGPSOnce(){
   if(!navigator.geolocation) return;
+
   navigator.geolocation.getCurrentPosition(
     pos=>{
       const lat=pos.coords.latitude, lng=pos.coords.longitude;
       placeUserOnMap(lat,lng);
       lmap.setView([lat,lng],14);
+      // re-render because distances changed
       renderMapPins(mapFilter_active);
       renderMapStrip(mapFilter_active);
       renderFeed();
     },
-    ()=>{ showToast('Tip: enable location for accurate distances 📍'); },
+    ()=>{
+      // fine; default location stays
+      showToast('Tip: enable location for more accurate distances 📍');
+    },
     {enableHighAccuracy:true,timeout:8000}
   );
 }
+
+function startGPSLive(){
+  if(!navigator.geolocation) return;
+  if(watchId) navigator.geolocation.clearWatch(watchId);
+  watchId=navigator.geolocation.watchPosition(
+    pos=>{
+      placeUserOnMap(pos.coords.latitude,pos.coords.longitude);
+      renderMapPins(mapFilter_active);
+      renderMapStrip(mapFilter_active);
+      renderFeed();
+    },
+    ()=>{},
+    {enableHighAccuracy:true,maximumAge:30000}
+  );
+}
+
+function stopGPSLive(){
+  if(!navigator.geolocation) return;
+  if(watchId){
+    navigator.geolocation.clearWatch(watchId);
+    watchId=null;
+  }
+}
+
 function getFilteredEvents(filter){
-  let list=[...EVENTS].filter(withinRadius);
+  let list = [...EVENTS];
+
+  // Radius filter always applied on map
+  list = list.filter(withinRadius);
+
   if(filter==='All') return list;
   if(filter==='Today') return list.filter(e=>e.today);
   return list.filter(e=>e.cat===filter);
 }
+
 function renderMapPins(filter){
   if(!lmap) return;
+
   mapMarkers.forEach(m=>lmap.removeLayer(m));
   mapMarkers=[];
 
   const list=getFilteredEvents(filter);
+
+  if(!list.length){
+    showToast('No events in your radius — try increasing miles');
+  }
+
   list.forEach(ev=>{
     const isToday=ev.today;
     const borderColor=isToday?'#C4622D':'#8B5E3C';
+    const bg='white';
     const textColor=isToday?'#C4622D':'#2C1A0E';
+
     const shortName=ev.name.split(' ').slice(0,2).join(' ');
-    const iconHtml=`<div style="background:white;padding:5px 9px 5px 6px;border-radius:20px;box-shadow:0 2px 10px rgba(0,0,0,${isToday?'.25':'.15'});border:2px solid ${borderColor};display:flex;align-items:center;gap:4px;white-space:nowrap;cursor:pointer;font-family:'DM Sans',sans-serif;${isToday?'transform:scale(1.05)':'opacity:.95'}">
-      <span style="font-size:14px;line-height:1">${ev.icon}</span>
-      <span style="font-size:11px;font-weight:600;color:${textColor};line-height:1">${shortName}</span>
-    </div>`;
+
+    const iconHtml=`
+      <div style="position:relative;display:inline-block">
+        <div style="background:${bg};padding:5px 9px 5px 6px;border-radius:20px;box-shadow:0 2px 10px rgba(0,0,0,${isToday?'.25':'.15'});border:2px solid ${borderColor};display:flex;align-items:center;gap:4px;white-space:nowrap;cursor:pointer;font-family:'DM Sans',sans-serif;${isToday?'transform:scale(1.05)':'opacity:.95'}">
+          <span style="font-size:14px;line-height:1">${ev.icon}</span>
+          <span style="font-size:11px;font-weight:600;color:${textColor};line-height:1">${shortName}</span>
+        </div>
+      </div>`;
+
     const icon=L.divIcon({className:'',html:iconHtml,iconAnchor:[0,36]});
     const m=L.marker([ev.lat,ev.lng],{icon}).addTo(lmap).on('click',()=>openEvSheet(ev));
     mapMarkers.push(m);
   });
 }
+
 function renderMapStrip(filter){
   const strip=document.getElementById('map-strip');
   strip.innerHTML='';
+
   const list=getFilteredEvents(filter);
+
   list.forEach(ev=>{
     const d=computeDistanceForEv(ev);
-    const distText=d==null?'—':(Math.round(d*10)/10);
+    const distText = d==null ? '—' : (Math.round(d*10)/10);
+
     const card=document.createElement('div');
     card.className='mini-ev-card';
     card.innerHTML=
@@ -1263,10 +1522,17 @@ function renderMapStrip(filter){
         `<div style="font-size:13px;font-weight:500;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.name}</div>`+
         `<div style="font-size:11px;color:var(--brown)">${ev.time} · ${distText} mi</div>`+
       `</div>`;
-    card.onclick=()=>{lmap.flyTo([ev.lat,ev.lng],16,{duration:0.8});setTimeout(()=>openEvSheet(ev),300);};
+
+    card.onclick=()=>{
+      if(lmap){
+        lmap.flyTo([ev.lat,ev.lng],16,{duration:0.8});
+        setTimeout(()=>openEvSheet(ev),300);
+      }
+    };
     strip.appendChild(card);
   });
 }
+
 function mapFilter(cat,el){
   document.querySelectorAll('.map-chip').forEach(c=>c.classList.remove('active'));
   if(el) el.classList.add('active');
@@ -1274,31 +1540,67 @@ function mapFilter(cat,el){
   renderMapPins(cat);
   renderMapStrip(cat);
 }
+
 function nearMeNow(){
-  mapFilter('Today',document.getElementById('map-chip-today'));
+  const todayChip=document.getElementById('map-chip-today');
+  mapFilter('Today',todayChip);
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      pos=> lmap && lmap.flyTo([pos.coords.latitude,pos.coords.longitude],15,{duration:1}),
+      ()=>{}
+    );
+  }
   showToast('Showing events happening today (within your radius) 📍');
 }
+
 function planMyDay(){
   const saved=[...savedEvs].map(id=>EVENTS.find(e=>e.id===id)).filter(Boolean);
   if(saved.length<2){showToast('Save 2+ events first to plan your day 📅');return;}
   const sorted=saved.sort((a,b)=>a.id-b.id);
+
   if(lmap && lmap._planLine) lmap.removeLayer(lmap._planLine);
+
   const coords=[[userLat,userLng],...sorted.map(e=>[e.lat,e.lng])];
-  lmap._planLine=L.polyline(coords,{color:'#C4622D',weight:3,dashArray:'8,6',opacity:0.7}).addTo(lmap);
-  lmap.fitBounds(lmap._planLine.getBounds(),{padding:[40,40]});
+  if(lmap){
+    lmap._planLine=L.polyline(coords,{color:'#C4622D',weight:3,dashArray:'8,6',opacity:0.7}).addTo(lmap);
+    lmap.fitBounds(lmap._planLine.getBounds(),{padding:[40,40]});
+  }
+
   showToast(`Route planned — ${sorted.length} stops`);
+
+  const sheet=document.getElementById('sheet');
+  sheet.innerHTML=
+    `<div class="drag-row"><div class="drag-handle"></div></div>`+
+    `<h3 style="font-family:var(--font-heading);font-size:18px;color:var(--dark);margin-bottom:4px">Your day plan</h3>`+
+    `<p style="font-size:13px;color:var(--brown);margin-bottom:14px">Route shown on map — tap any event to see details</p>`+
+    sorted.map((ev,i)=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:0.5px solid var(--border);cursor:pointer"
+           onclick="openEvSheet(EVENTS.find(e=>e.id===${ev.id}))">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--rust);color:white;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div>
+        <div style="font-size:22px">${ev.icon}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500;color:var(--dark)">${ev.name}</div>
+          <div style="font-size:11px;color:var(--brown)">${ev.time} · ${ev.venue}</div>
+        </div>
+      </div>`).join('')+
+    `<button class="btn-main" style="margin-top:14px" onclick="closeSheet()">Done</button>`;
+
+  openSheet();
 }
+
 function goToMe(){
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(
-      pos=>{lmap.flyTo([pos.coords.latitude,pos.coords.longitude],15,{duration:0.8});},
-      ()=>lmap.flyTo([userLat,userLng],15,{duration:0.8})
+      pos=> lmap && lmap.flyTo([pos.coords.latitude,pos.coords.longitude],15,{duration:0.8}),
+      ()=> lmap && lmap.flyTo([userLat,userLng],15,{duration:0.8})
     );
-  }else lmap.flyTo([userLat,userLng],15,{duration:0.8});
+  }else{
+    lmap && lmap.flyTo([userLat,userLng],15,{duration:0.8});
+  }
 }
 
 /* ============================
-   EVENT SHEET (simplified)
+   EVENT SHEET (kept mostly)
 ============================ */
 function openEvSheet(ev){openEvById(ev.id);}
 function openEvById(id){
@@ -1307,30 +1609,102 @@ function openEvById(id){
 
   const sheet=document.getElementById('sheet');
   const isSaved=savedEvs.has(ev.id);
+  const isFull=ev.cap&&ev.cap.now>=ev.cap.max;
 
   const d=computeDistanceForEv(ev);
-  const distText=d==null?'—':(Math.round(d*10)/10);
+  const distText = d==null ? '—' : (Math.round(d*10)/10);
+
+  const avAll=ev.attendees.slice(0,8).map((a,i)=>`<div class="av" style="background:${AVC[i%AVC.length]};width:26px;height:26px;font-size:9px">${a}</div>`).join('');
+  const mAll=ev.going>8?`<div class="av" style="background:var(--sand);color:var(--mid);width:26px;height:26px;font-size:9px">+${ev.going-8}</div>`:'';
+
+  let capS='';
+  if(ev.cap){
+    const p=Math.round(ev.cap.now/ev.cap.max*100);
+    capS=`<div style="margin-bottom:18px">
+      <div style="font-size:12px;font-weight:600;color:var(--dark);margin-bottom:4px">${ev.cap.now} of ${ev.cap.max} spots taken</div>
+      <div class="ev-cap-bar"><div class="ev-cap-fill" style="width:${p}%"></div></div>
+      ${isFull?'<span class="badge badge-full">Waitlist open</span>':(p>=80?`<span class="badge badge-last">⚡ Only ${ev.cap.max-ev.cap.now} spot${ev.cap.max-ev.cap.now>1?'s':''} left</span>`:'')}
+    </div>`;
+  }
+
+  const qaH=(ev.qa||[]).map(q=>`
+    <div class="qa-item">
+      <div class="qa-q">Q: ${q.q}</div>
+      <div class="qa-a">A: ${q.a}</div>
+      <div class="qa-meta">${q.org?'Answered by organiser · ':''}Asked by ${q.user}</div>
+    </div>`).join('') || '<p style="font-size:12px;color:var(--gray);font-style:italic;">No questions yet — be the first!</p>';
 
   sheet.innerHTML=
     `<div class="drag-row"><div class="drag-handle"></div><div class="sheet-share" onclick="shareSheet('${ev.name}')">📤</div></div>`+
-    `<div class="ev-hero"><div class="ev-big-emoji" style="background:${CAT_BG[ev.cat]||'#F2E8D9'}">${ev.icon}</div><div><h2 style="font-family:var(--font-heading);font-size:19px;color:var(--dark);margin-bottom:6px">${ev.name}</h2><span class="pill pill-cat">${ev.featured?'Featured':'Community'}</span></div></div>`+
-    `<div class="ev-info-grid"><div class="ev-info-item"><strong>${ev.date}</strong><span>${ev.time}</span></div><div class="ev-info-item"><strong>${ev.venue}</strong><span>${distText} miles away</span></div><div class="ev-info-item"><strong>${ev.price}</strong><span>Entry</span></div><div class="ev-info-item"><strong>Radius</strong><span>${prefs.radius} miles</span></div></div>`+
+    `<div class="ev-hero">
+      <div class="ev-big-emoji" style="background:${CAT_BG[ev.cat]||'#F2E8D9'}">${ev.icon}</div>
+      <div>
+        <h2 style="font-family:var(--font-heading);font-size:19px;color:var(--dark);margin-bottom:6px">${ev.name}</h2>
+        <span class="pill pill-cat">${ev.featured?'Featured':'Community'}</span>${ev.family?' <span class="pill pill-family">🧒 Family</span>':''}
+      </div>
+    </div>`+
+    `<div class="ev-info-grid">
+      <div class="ev-info-item"><strong>${ev.date}</strong><span>${ev.time}</span></div>
+      <div class="ev-info-item"><strong>${ev.venue}</strong><span>${distText} miles away</span></div>
+      <div class="ev-info-item"><strong>${ev.price}</strong><span>Entry</span></div>
+      <div class="ev-info-item"><strong>Within radius</strong><span>${prefs.radius} miles</span></div>
+    </div>`+
     (ev.bring?`<div class="bring-box"><strong>🎒 What to bring:</strong> ${ev.bring}</div>`:'')+
     `<p class="ev-desc">${ev.desc}</p>`+
-    `<div class="sheet-actions"><button class="btn-main" onclick="showToast(\`You're going! 🎉\`);closeSheet();">I'm going ✓</button><button class="btn-main outline ${isSaved?'saved':''}" onclick="sheetSave(${ev.id},this)">${isSaved?'♥ Saved':'🔖 Save'}</button></div>`;
+    `<div style="margin-bottom:18px">
+      <div class="ev-att-lbl">${ev.going} people going</div>
+      <div class="att-row"><div class="av-stack">${avAll}${mAll}</div></div>
+    </div>`+
+    capS+
+    `<div class="qa-sec" style="border-top:0.5px solid var(--border);padding-top:16px;margin-bottom:14px">
+      <h4>Questions &#38; answers</h4>
+      ${qaH}
+      <div class="qa-wrap">
+        <input class="qa-field" type="text" placeholder="Ask a question..." id="qa-in-${ev.id}">
+        <button class="qa-send" onclick="sendQA(${ev.id})">Send</button>
+      </div>
+    </div>`+
+    `<div class="sheet-actions">
+      ${isFull
+        ? `<button class="btn-main amber" onclick="showToast('Added to waitlist 📋');closeSheet()">Join waitlist</button>`
+        : `<button class="btn-main" onclick="markGoing(${ev.id})">I'm going ✓</button>`
+      }
+      <button class="btn-main outline ${isSaved?'saved':''}" onclick="sheetSave(${ev.id},this)">${isSaved?'♥ Saved':'🔖 Save'}</button>
+    </div>`;
+
   openSheet();
 }
+function markGoing(id){const ev=EVENTS.find(e=>e.id===id);if(ev)ev.going++;showToast("You're going! 🎉");closeSheet();renderFeed();}
 function sheetSave(id,btn){
   if(savedEvs.has(id)){savedEvs.delete(id);btn.textContent='🔖 Save';btn.classList.remove('saved');showToast('Removed from saved');}
   else{savedEvs.add(id);btn.textContent='♥ Saved';btn.classList.add('saved');showToast('Saved! 🔖');}
   renderFeed();
 }
-function shareSheet(name){if(navigator.share)navigator.share({title:name,url:window.location.href});else{navigator.clipboard&&navigator.clipboard.writeText(window.location.href);showToast('Link copied! 📋');}}
-function openSheet(){const ov=document.getElementById('overlay'),sh=document.getElementById('sheet');ov.style.display='block';requestAnimationFrame(()=>{ov.style.opacity='1';sh.style.transform='translateY(0)';});}
-function closeSheet(){const ov=document.getElementById('overlay'),sh=document.getElementById('sheet');sh.style.transform='translateY(100%)';ov.style.opacity='0';setTimeout(()=>{ov.style.display='none';},320);}
+function shareSheet(name){
+  if(navigator.share)navigator.share({title:name,url:window.location.href});
+  else{navigator.clipboard&&navigator.clipboard.writeText(window.location.href);showToast('Link copied! 📋');}
+}
+function sendQA(id){
+  const f=document.getElementById('qa-in-'+id);
+  if(!f||!f.value.trim()) return;
+  showToast('Question posted — organiser notified 📬');
+  f.value='';
+}
+
+/* Overlay / sheet */
+function openSheet(){
+  const ov=document.getElementById('overlay'),sh=document.getElementById('sheet');
+  ov.style.display='block';
+  requestAnimationFrame(()=>{ov.style.opacity='1';sh.style.transform='translateY(0)';});
+}
+function closeSheet(){
+  const ov=document.getElementById('overlay'),sh=document.getElementById('sheet');
+  sh.style.transform='translateY(100%)';ov.style.opacity='0';
+  setTimeout(()=>{ov.style.display='none';},320);
+}
 
 /* ============================
-   DISCOVER
+   DISCOVER (simple)
 ============================ */
 function discMode(m){
   document.getElementById('disc-vibe').classList.toggle('active',m==='vibe');
@@ -1345,9 +1719,13 @@ function moodPick(type,emoji,label){
   document.getElementById('disc-vibe-pane').style.display='none';
   document.getElementById('disc-results').style.display='block';
   document.getElementById('disc-res-title').textContent=emoji+' '+label;
+
   const con=document.getElementById('disc-res-list');
   con.innerHTML='';
-  if(!list.length){con.innerHTML='<p style="color:var(--brown);font-size:13px;padding:20px 0;text-align:center">No events found — check back soon!</p>';return;}
+  if(!list.length){
+    con.innerHTML='<p style="color:var(--brown);font-size:13px;padding:20px 0;text-align:center">No events found — check back soon!</p>';
+    return;
+  }
   list.forEach(ev=>{
     const d=document.createElement('div');d.className='tl-item';
     d.innerHTML=`<div class="tl-dot" style="background:${AVC[ev.id%AVC.length]}"></div><div style="flex:1"><div class="tl-name">${ev.icon} ${ev.name}</div><div class="tl-venue">${ev.venue}</div></div><div class="tl-time">${ev.time}</div>`;
@@ -1355,10 +1733,21 @@ function moodPick(type,emoji,label){
     con.appendChild(d);
   });
 }
-function surpriseMe(){const pick=EVENTS[Math.floor(Math.random()*EVENTS.length)];showToast(`How about: ${pick.icon} ${pick.name}?`);setTimeout(()=>openEvSheet(pick),500);}
-function discBack(){document.getElementById('disc-results').style.display='none';document.getElementById('disc-vibe-pane').style.display='block';}
+function surpriseMe(){
+  const pool=[...EVENTS];
+  const pick=pool[Math.floor(Math.random()*pool.length)];
+  showToast(`How about: ${pick.icon} ${pick.name}?`);
+  setTimeout(()=>openEvSheet(pick),500);
+}
+function discBack(){
+  document.getElementById('disc-results').style.display='none';
+  document.getElementById('disc-vibe-pane').style.display='block';
+}
 function renderTimeline(){
-  const days=[{l:'Today',ev:EVENTS.filter(e=>e.today)},{l:'This weekend',ev:EVENTS.filter(e=>e.date.includes('Sat')||e.date.includes('Sun'))}];
+  const days=[
+    {l:'Today', ev:EVENTS.filter(e=>e.today)},
+    {l:'This weekend', ev:EVENTS.filter(e=>e.date.includes('Sat')||e.date.includes('Sun'))}
+  ];
   const con=document.getElementById('tl-content');con.innerHTML='';
   days.forEach(day=>{
     if(!day.ev.length) return;
@@ -1373,7 +1762,7 @@ function renderTimeline(){
 }
 
 /* ============================
-   POST
+   POST (kept)
 ============================ */
 function setAcct(t){
   document.getElementById('acct-pers').classList.toggle('active',t==='personal');
@@ -1381,11 +1770,95 @@ function setAcct(t){
   document.getElementById('bus-panel').style.display=t==='business'?'block':'none';
 }
 function selCat(cat,el){document.querySelectorAll('.cat-tile').forEach(t=>t.classList.remove('sel'));el.classList.add('sel');}
-function setFree(isFree,el){el.closest('.yn-toggle').querySelectorAll('.yn-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');document.getElementById('f-price').style.display=isFree?'none':'flex';}
-function doParse(){showToast('Parser: coming soon in this v6 build');}
+function setFree(isFree,el){
+  el.closest('.yn-toggle').querySelectorAll('.yn-opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('f-price').style.display=isFree?'none':'flex';
+}
+function setYN(key,val,el){
+  el.closest('.yn-toggle').querySelectorAll('.yn-opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+  const map={outdoor:'outdoor-note',cap:'cap-reveal',recur:'recur-reveal'};
+  if(map[key])document.getElementById(map[key]).style.display=val?'block':'none';
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const blcb=document.getElementById('bus-link-cb');
+  if(blcb)blcb.addEventListener('change',function(){
+    document.getElementById('bus-link-reveal').style.display=this.checked?'block':'none';
+  });
+});
+function doParse(){
+  const txt=document.getElementById('smart-in').value;
+  if(!txt.trim()) return;
+
+  const low=txt.toLowerCase();
+  const fields={};
+
+  const tm=txt.match(/(\d{1,2}(?::\d{2})?(?:am|pm))/i);
+  if(tm){
+    const r=tm[1].toLowerCase();
+    const pm=r.includes('pm');
+    let[h,m]=r.replace(/am|pm/,'').split(':').map(Number);
+    if(isNaN(m))m=0;
+    if(pm&&h!==12)h+=12;
+    if(!pm&&h===12)h=0;
+    fields.time=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  }
+
+  const dayMap={monday:1,tuesday:2,wednesday:3,thursday:4,friday:5,saturday:6,sunday:0,today:0,tomorrow:1};
+  const today=new Date();
+  for(const[word,offset]of Object.entries(dayMap)){
+    if(low.includes(word)){
+      const d=new Date(today);
+      if(word==='tomorrow')d.setDate(d.getDate()+1);
+      else if(word!=='today'){
+        const t=offset;
+        const c=d.getDay();
+        const diff=(t-c+7)%7||7;
+        d.setDate(d.getDate()+diff);
+      }
+      fields.date=d.toISOString().split('T')[0];
+      break;
+    }
+  }
+
+  if(low.includes('free'))fields.priceIsFree=true;
+  else{
+    const pm=txt.match(/£(\d+)/);
+    if(pm)fields.price=pm[1];
+  }
+
+  const at=txt.split(/\s+at\s+|\s+in\s+/i);
+  if(at.length>=2){
+    fields.name=at[0].trim();
+    fields.venue=at[1].split(/\s+(?:on\s|sat|sun|mon|tue|wed|thu|fri|saturday|sunday|\d)/i)[0].trim();
+  }
+
+  let filled=0;
+  const flash=el=>{
+    el.style.background='var(--rust-xlight)';
+    el.style.borderColor='var(--rust)';
+    setTimeout(()=>{el.style.background='';el.style.borderColor='';},1600);
+  };
+  if(fields.name){const el=document.getElementById('f-name');el.value=fields.name;flash(el);filled++;}
+  if(fields.venue){const el=document.getElementById('f-venue');el.value=fields.venue;flash(el);filled++;}
+  if(fields.date){const el=document.getElementById('f-date');el.value=fields.date;flash(el);filled++;}
+  if(fields.time){const el=document.getElementById('f-time');el.value=fields.time;flash(el);filled++;}
+
+  const note=document.getElementById('parse-ok');
+  note.style.display=filled>0?'block':'none';
+  if(!filled)showToast("Couldn't parse that — try filling in manually");
+}
 function submitPost(){
   const n=document.getElementById('f-name'),v=document.getElementById('f-venue'),d=document.getElementById('f-date'),t=document.getElementById('f-time');
-  let ok=true;[n,v,d,t].forEach(f=>{if(!f.value){f.classList.add('err');setTimeout(()=>f.classList.remove('err'),500);ok=false;}});
+  let ok=true;
+  [n,v,d,t].forEach(f=>{
+    if(!f.value){
+      f.classList.add('err');
+      setTimeout(()=>f.classList.remove('err'),500);
+      ok=false;
+    }
+  });
   if(!ok){showToast('Please fill in the required fields');return;}
   showToast('Your event is live on Turnout! 🎉');
   [n,v,d,t].forEach(f=>f.value='');
@@ -1395,13 +1868,17 @@ function submitPost(){
 }
 
 /* ============================
-   ME / SETTINGS
+   ME
 ============================ */
 function renderMe(){
-  const sc=document.getElementById('me-saved');sc.innerHTML='';
+  const sc=document.getElementById('me-saved');
+  sc.innerHTML='';
   const sl=EVENTS.filter(e=>savedEvs.has(e.id));
-  if(!sl.length) sc.innerHTML='<p style="font-size:12px;color:var(--brown);font-style:italic;">Nothing saved yet — tap ♥ on any event</p>';
-  else sl.forEach(ev=>{
+  if(!sl.length){
+    sc.innerHTML='<p style="font-size:12px;color:var(--brown);font-style:italic;">Nothing saved yet — tap ♥ on any event</p>';
+    return;
+  }
+  sl.forEach(ev=>{
     const d=document.createElement('div');d.className='saved-mini';
     d.innerHTML=`<div class="emoji-box" style="width:36px;height:36px;font-size:18px;background:${CAT_BG[ev.cat]||'#F2E8D9'}">${ev.icon}</div><div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--dark)">${ev.name}</div><div style="font-size:11px;color:var(--brown)">${ev.date} · ${ev.time}</div></div><span style="font-size:18px">🔖</span>`;
     d.onclick=()=>openEvSheet(ev);
@@ -1409,48 +1886,116 @@ function renderMe(){
   });
 
   const pc=document.getElementById('me-posted');
-  pc.innerHTML=`<div class="saved-mini" onclick="showToast('Posting history: coming soon')"><div class="emoji-box" style="width:36px;height:36px;font-size:18px;background:#FAE8DC">✦</div><div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--dark)">Your posted events</div><div style="font-size:11px;color:var(--brown)">Coming soon</div></div></div>`;
+  pc.innerHTML=`<div class="saved-mini" onclick="openEvById(5)">
+    <div class="emoji-box" style="width:36px;height:36px;font-size:18px;background:#FAE8DC">🎨</div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:500;color:var(--dark)">Craft Circle</div>
+      <div style="font-size:11px;color:var(--brown)">8 going · 0 on waitlist</div>
+    </div>
+    <button onclick="event.stopPropagation();showToast('Edit coming soon!')" style="background:var(--sand);border:0.5px solid var(--border-md);padding:4px 10px;border-radius:7px;font-size:11px;cursor:pointer;color:var(--mid)">Edit</button>
+  </div>`;
 }
+function toggleInt(el){el.classList.toggle('on');showToast('Feed updated ✓');saveP();}
+
+/* ============================
+   SETTINGS
+============================ */
 function openSettings(){document.getElementById('settings-view').classList.add('open');}
 function closeSettings(){document.getElementById('settings-view').classList.remove('open');}
+function applySize(s,el){
+  prefs.textSize=s;
+  document.body.classList.remove('text-lg','text-xl');
+  if(s==='lg')document.body.classList.add('text-lg');
+  if(s==='xl')document.body.classList.add('text-xl');
+  el.closest('.seg').querySelectorAll('.seg-opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+  saveP();
+}
 function applyTheme(m,el){
   prefs.theme=m;
-  const t=m==='system'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):m;
+  const t=m==='system'
+    ? (window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')
+    : m;
   document.documentElement.setAttribute('data-theme',t);
   el.closest('.seg').querySelectorAll('.seg-opt').forEach(o=>o.classList.remove('active'));
   el.classList.add('active');
   saveP();
 }
+function applyAccent(col,light,dark,el){
+  prefs.accent=col;prefs.accentLight=light;prefs.accentDark=dark;
+  document.documentElement.style.setProperty('--rust',col);
+  document.documentElement.style.setProperty('--rust-light',light);
+  document.documentElement.style.setProperty('--rust-dark',dark);
+  document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  saveP();
+}
 function renderSwatches(){
-  const con=document.getElementById('swatches');if(!con)return;
+  const con=document.getElementById('swatches');
+  if(!con) return;
   const cols=[['#C4622D','#FAE8DC','#993C1D'],['#3A7D44','#E0F2E5','#256B2E'],['#4A6FA5','#E3EBF6','#2D4F80'],['#7B3FA0','#F0E5F8','#5A2478'],['#C17F24','#FDF0DB','#9A6018']];
   con.innerHTML='';
   cols.forEach(([c,l,d])=>{
     const s=document.createElement('div');
     s.className='swatch'+(prefs.accent===c?' active':'');
     s.style.background=c;
-    s.onclick=()=>{prefs.accent=c;prefs.accentLight=l;prefs.accentDark=d;applyPrefs();saveP();};
+    s.onclick=()=>applyAccent(c,l,d,s);
     con.appendChild(s);
   });
 }
-function segSet(el,key,val){prefs[key]=val;el.closest('.seg').querySelectorAll('.seg-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');if(key==='sort')renderFeed();saveP();}
-function toggleQuiet(){prefs.quietEnabled=!prefs.quietEnabled;document.getElementById('quiet-tp').classList.toggle('on',prefs.quietEnabled);updateQuietPill();saveP();}
-function updateQuietPill(){const pill=document.getElementById('quiet-pill');if(!pill)return;if(prefs.quietEnabled){const h=new Date().getHours();pill.style.display=(h>=21||h<8)?'block':'none';}else pill.style.display='none';}
+function segSet(el,key,val){
+  prefs[key]=val;
+  el.closest('.seg').querySelectorAll('.seg-opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+  if(key==='sort')renderFeed();
+  saveP();
+}
+function setMotion(m,el){
+  prefs.reduceMotion=m==='reduce';
+  document.body.classList.toggle('reduce-motion',prefs.reduceMotion);
+  el.closest('.seg').querySelectorAll('.seg-opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+  saveP();
+}
+function toggleQuiet(){
+  prefs.quietEnabled=!prefs.quietEnabled;
+  document.getElementById('quiet-tp').classList.toggle('on',prefs.quietEnabled);
+  updateQuietPill();
+  saveP();
+}
+function updateQuietPill(){
+  const pill=document.getElementById('quiet-pill');
+  if(!pill) return;
+  if(prefs.quietEnabled){
+    const h=new Date().getHours();
+    pill.style.display=(h>=21||h<8)?'block':'none';
+  }else{
+    pill.style.display='none';
+  }
+}
 
 /* ============================
-   LOCATION (simple + geolocation)
+   LOCATION (now actually moves map)
+   Uses Nominatim (good for prototype; add rate-limiting + proper UA in production)
 ============================ */
 async function geocodeUK(query){
-  const url='https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=gb&q='+encodeURIComponent(query);
-  const res=await fetch(url,{headers:{'Accept':'application/json'}});
+  const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=gb&q=' + encodeURIComponent(query);
+  const res = await fetch(url, {
+    headers: {
+      // Nominatim prefers a valid Referer and a real app UA; in production use your domain + backend proxy.
+      'Accept':'application/json'
+    }
+  });
   if(!res.ok) throw new Error('Geocode failed');
-  const json=await res.json();
+  const json = await res.json();
   if(!json || !json.length) return null;
-  return {lat:+json[0].lat,lng:+json[0].lon,name:json[0].display_name};
+  return {lat: +json[0].lat, lng: +json[0].lon, name: json[0].display_name};
 }
+
 function openLocSheet(){
   const sheet=document.getElementById('sheet');
   const locs=['Bicester','Oxford','Banbury','Milton Keynes'];
+
   sheet.innerHTML=
     `<div class="drag-row"><div class="drag-handle"></div></div>`+
     `<h3 style="font-family:var(--font-heading);font-size:18px;margin-bottom:14px;color:var(--dark)">Change location</h3>`+
@@ -1458,11 +2003,17 @@ function openLocSheet(){
     `<button class="loc-use-btn" onclick="useMyLocation()">📍 Use my current location</button>`+
     `<button class="btn-main outline" onclick="submitLocSearch()" style="margin-bottom:14px;">Search</button>`+
     `<div style="font-size:11px;color:var(--brown);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Recent locations</div>`+
-    locs.map(l=>`<div class="loc-item" onclick="setLoc('${l}')"><span class="loc-nm">📍 ${l}</span><span class="loc-rm">×</span></div>`).join('');
+    locs.map(l=>`<div class="loc-item" onclick="setLoc('${l}')"><span class="loc-nm">📍 ${l}</span><span class="loc-rm">×</span></div>`).join('')+
+    `<div style="margin-top:14px;padding:12px;background:var(--sand);border-radius:10px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px"><div><div style="font-size:13px;font-weight:500;color:var(--dark)">Live location</div><div style="font-size:11px;color:var(--brown);margin-top:2px;line-height:1.5">Keep map updated as you move</div></div><div class="tp" id="live-gps-tp" onclick="toggleLiveGPS(this)"></div></div>`;
+
   openSheet();
-  const input=document.getElementById('loc-search');
-  input.addEventListener('keydown',(e)=>{if(e.key==='Enter')submitLocSearch();});
+
+  const input = document.getElementById('loc-search');
+  input.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter') submitLocSearch();
+  });
 }
+
 async function submitLocSearch(){
   const input=document.getElementById('loc-search');
   if(!input) return;
@@ -1470,48 +2021,71 @@ async function submitLocSearch(){
   if(!q){showToast('Enter a town or postcode');return;}
   showToast('Searching…');
   try{
-    const r=await geocodeUK(q);
+    const r = await geocodeUK(q);
     if(!r){showToast('No results — try a different search');return;}
-    await setLoc(q,r.lat,r.lng);
+    // Use the user's query as the "location" label for now
+    await setLoc(q, r.lat, r.lng);
   }catch(e){
     showToast('Search failed — try again later');
   }
 }
-async function setLoc(loc,lat=null,lng=null){
+
+async function setLoc(loc, lat=null, lng=null){
   prefs.location=loc;
   document.getElementById('loc-txt').textContent=loc;
   saveP();
 
+  // Move map if we have coordinates (from geocoder)
   if(lat!=null && lng!=null){
     if(!lmap) initMap();
-    if(lmap){
-      placeUserOnMap(lat,lng);
-      lmap.setView([lat,lng],14);
-      renderMapPins(mapFilter_active);
-      renderMapStrip(mapFilter_active);
-      renderFeed();
-    }
+    placeUserOnMap(lat,lng);
+    if(lmap) lmap.setView([lat,lng], 14);
+    renderMapPins(mapFilter_active);
+    renderMapStrip(mapFilter_active);
+    renderFeed();
   }
+
   showToast('Showing events in '+loc);
   closeSheet();
 }
+
 function useMyLocation(){
   if(!navigator.geolocation){showToast('Location not supported');return;}
   showToast('Finding your location… 📍');
   navigator.geolocation.getCurrentPosition(
-    pos=>{setLoc('Current location',pos.coords.latitude,pos.coords.longitude);},
+    pos=>{
+      const lat=pos.coords.latitude, lng=pos.coords.longitude;
+      setLoc('Current location', lat, lng);
+    },
     ()=>showToast('Enable location permissions to use this'),
     {enableHighAccuracy:true,timeout:8000}
   );
 }
+
 function useMyLocationFromOnboarding(){
   if(!navigator.geolocation){showToast('Location not supported');return;}
   showToast('Finding your location… 📍');
   navigator.geolocation.getCurrentPosition(
-    pos=>{document.getElementById('ob-loc').value='Current location';setLoc('Current location',pos.coords.latitude,pos.coords.longitude);},
+    pos=>{
+      const lat=pos.coords.latitude, lng=pos.coords.longitude;
+      document.getElementById('ob-loc').value = 'Current location';
+      // store coords immediately
+      setLoc('Current location', lat, lng);
+    },
     ()=>showToast('Enable location permissions to use this'),
     {enableHighAccuracy:true,timeout:8000}
   );
+}
+
+function toggleLiveGPS(tpEl){
+  tpEl.classList.toggle('on');
+  if(tpEl.classList.contains('on')){
+    startGPSLive();
+    showToast('Live location on');
+  }else{
+    stopGPSLive();
+    showToast('Live location off');
+  }
 }
 
 /* ============================
@@ -1538,7 +2112,14 @@ function obGo(step){
   document.getElementById('ob'+step).classList.add('active');
   document.getElementById('od'+step).classList.add('active');
 }
-function finishOB(){prefs.setupDone=true;saveP();const ob=document.getElementById('onboarding');ob.style.opacity='0';ob.style.transition='opacity .4s';setTimeout(()=>{ob.style.display='none';},420);}
+function finishOB(){
+  prefs.setupDone=true;
+  saveP();
+  const ob=document.getElementById('onboarding');
+  ob.style.opacity='0';
+  ob.style.transition='opacity .4s';
+  setTimeout(()=>{ob.style.display='none';},420);
+}
 function skipOB(){prefs.setupDone=true;saveP();document.getElementById('onboarding').style.display='none';}
 
 /* ============================
@@ -1552,15 +2133,12 @@ function showToast(msg){
   toastT=setTimeout(()=>t.classList.remove('show'),2400);
 }
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;});
-function doInstall(){if(deferredInstall)deferredInstall.prompt();else showToast("On iPhone: tap Share → 'Add to Home Screen'");dismissBanner();}
-function dismissBanner(){document.getElementById('install-banner').style.display='none';localStorage.setItem('to_inst','1');}
-
-/* Service Worker registration */
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(()=>{});
-  });
+function doInstall(){
+  if(deferredInstall) deferredInstall.prompt();
+  else showToast("On iPhone: tap Share → 'Add to Home Screen'");
+  dismissBanner();
 }
+function dismissBanner(){document.getElementById('install-banner').style.display='none';localStorage.setItem('to_inst','1');}
 
 /* ============================
    SHEET DRAG
@@ -1573,29 +2151,47 @@ if ('serviceWorker' in navigator) {
     sy=e.touches[0].clientY;drag=true;sheet.style.transition='none';
   },{passive:true});
   sheet.addEventListener('touchmove',e=>{
-    if(!drag)return;cy=e.touches[0].clientY;const d=Math.max(0,cy-sy);sheet.style.transform=`translateY(${d}px)`;
+    if(!drag)return;
+    cy=e.touches[0].clientY;
+    const d=Math.max(0,cy-sy);
+    sheet.style.transform=`translateY(${d}px)`;
   },{passive:true});
   sheet.addEventListener('touchend',()=>{
-    if(!drag)return;drag=false;sheet.style.transition='transform .35s cubic-bezier(.32,.72,0,1)';
-    if(cy-sy>120)closeSheet();else sheet.style.transform='translateY(0)';
+    if(!drag)return;
+    drag=false;
+    sheet.style.transition='transform .35s cubic-bezier(.32,.72,0,1)';
+    if(cy-sy>120)closeSheet();
+    else sheet.style.transform='translateY(0)';
   });
 })();
 
-/* GLOBAL CLOSE */
+/* ============================
+   GLOBAL CLOSE
+============================ */
 document.addEventListener('click',()=>{
   document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');
   document.getElementById('notif-panel').style.display='none';
 });
 
-/* INIT */
+/* ============================
+   INIT
+============================ */
 document.addEventListener('DOMContentLoaded',()=>{
   loadP();
   renderFeed();
   renderTimeline();
-  if(!prefs.setupDone)document.getElementById('onboarding').classList.add('show');
-  setTimeout(()=>{if(!localStorage.getItem('to_inst'))document.getElementById('install-banner').style.display='flex';},30000);
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(prefs.theme==='system')applyPrefs();});
-  if(prefs.quietEnabled)document.getElementById('quiet-tp').classList.add('on');
+  if(!prefs.setupDone) document.getElementById('onboarding').classList.add('show');
+
+  setTimeout(()=>{
+    if(!localStorage.getItem('to_inst')) document.getElementById('install-banner').style.display='flex';
+  },30000);
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{
+    if(prefs.theme==='system')applyPrefs();
+  });
+
+  if(prefs.familyMode) document.getElementById('family-tp').classList.add('on');
+  if(prefs.quietEnabled) document.getElementById('quiet-tp').classList.add('on');
 });
 </script>
 </body>
