@@ -228,15 +228,42 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
   flex:1;
   min-height:100%;
 }
+/* iOS stacking fix: ensure overlays sit above Leaflet */
+#view-map{
+  position:relative;
+  padding:0 !important;
+  flex:1;
+  min-height:100%;
+
+  isolation:isolate;
+  z-index:0;
+}
+
 #leaflet-map{
   position:absolute;
   inset:0;
   width:100%;
   height:100%;
   background:#e8ecd8;
-
-  /* Base layer */
   z-index:1;
+}
+/* Force Leaflet panes below UI overlays */
+#view-map .leaflet-pane,
+#view-map .leaflet-control,
+#view-map .leaflet-top,
+#view-map .leaflet-bottom{
+  z-index:2 !important;
+}
+
+.map-filter-bar,
+.map-controls,
+#near-me-btn,
+#plan-day-btn,
+#map-strip,
+#map-legend{
+  position:absolute;
+  z-index:50;
+  pointer-events:auto;
 }
 
 /* Overlay layers (filters/controls/buttons/cards) */
@@ -837,7 +864,7 @@ html, body { height: 100%; }
         </div>
         <div class="prof-av">TS</div>
         <div class="prof-name">Thomas S-F</div>
-        <div class="prof-sub">📍 Bicester · Member since Jan 2025</div>
+        <div class="prof-sub">📍 Bicester · Member since March 2026</div>
         <div class="stats-row">
           <div class="stat-b"><div class="stat-n">14</div><div class="stat-l">attended</div></div>
           <div class="stat-b"><div class="stat-n">3</div><div class="stat-l">posted</div></div>
