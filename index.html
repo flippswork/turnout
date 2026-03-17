@@ -845,6 +845,18 @@ html, body { height: 100%; }
         <p style="font-size:11px;color:var(--brown);margin-top:6px;">We'll auto-post this for you each time 🔁</p>
       </div>
     </div>
+    <!-- SOCIAL: Tag friends and privacy -->
+    <div class="form-grp"><label>Tag friends (optional)</label>
+      <input type="text" id="f-friends" placeholder="Type names, separated by commas">
+      <div style="font-size:11px;color:var(--brown);margin-top:4px;">Tag friends to invite them directly</div>
+    </div>
+    <div class="form-grp"><label>Event privacy</label>
+      <div class="yn-toggle">
+        <div class="yn-opt active" onclick="setPrivacy('public',this)">🌍 Public</div>
+        <div class="yn-opt" onclick="setPrivacy('friends',this)">👥 Friends only</div>
+      </div>
+      <div style="font-size:11px;color:var(--brown);margin-top:4px;">Choose who can see this event</div>
+    </div>
     <div class="bus-panel" id="bus-panel">
       <p>Business extras</p>
       <label><input type="checkbox" id="bus-link-cb"> Add ticket / booking link</label>
@@ -1657,8 +1669,18 @@ function goToMe(){
 ============================ */
 function openEvSheet(ev){openEvById(ev.id);}
 function openEvById(id){
+
   const ev=EVENTS.find(e=>e.id===id);
   if(!ev) return;
+
+  // Social: show tagged friends and privacy if present
+  var socialInfo = '';
+  if (ev.friends && ev.friends.length) {
+    socialInfo += '<div style="margin-bottom:10px;font-size:13px;color:var(--brown)"><strong>👥 Tagged friends:</strong> ' + ev.friends.map(function(f){return '<span style="background:var(--sand);padding:2px 7px;border-radius:7px;margin-right:4px;">'+f+'</span>';}).join('') + '</div>';
+  }
+  if (ev.privacy === 'friends') {
+    socialInfo += '<div style="margin-bottom:10px;font-size:12px;color:var(--mid)"><strong>🔒 Private event (friends only)</strong></div>';
+  }
 
   const sheet=document.getElementById('sheet');
   const isSaved=savedEvs.has(ev.id);
@@ -1687,43 +1709,52 @@ function openEvById(id){
       <div class="qa-meta">${q.org?'Answered by organiser · ':''}Asked by ${q.user}</div>
     </div>`).join('') || '<p style="font-size:12px;color:var(--gray);font-style:italic;">No questions yet — be the first!</p>';
 
-  sheet.innerHTML=
-    `<div class="drag-row"><div class="drag-handle"></div><div class="sheet-share" onclick="shareSheet('${ev.name}')">📤</div></div>`+
-    `<div class="ev-hero">
-      <div class="ev-big-emoji" style="background:${CAT_BG[ev.cat]||'#F2E8D9'}">${ev.icon}</div>
-      <div>
-        <h2 style="font-family:var(--font-heading);font-size:19px;color:var(--dark);margin-bottom:6px">${ev.name}</h2>
-        <span class="pill pill-cat">${ev.featured?'Featured':'Community'}</span>${ev.family?' <span class="pill pill-family">🧒 Family</span>':''}
-      </div>
-    </div>`+
-    `<div class="ev-info-grid">
-      <div class="ev-info-item"><strong>${ev.date}</strong><span>${ev.time}</span></div>
-      <div class="ev-info-item"><strong>${ev.venue}</strong><span>${distText} miles away</span></div>
-      <div class="ev-info-item"><strong>${ev.price}</strong><span>Entry</span></div>
-      <div class="ev-info-item"><strong>Within radius</strong><span>${prefs.radius} miles</span></div>
-    </div>`+
-    (ev.bring?`<div class="bring-box"><strong>🎒 What to bring:</strong> ${ev.bring}</div>`:'')+
-    `<p class="ev-desc">${ev.desc}</p>`+
-    `<div style="margin-bottom:18px">
-      <div class="ev-att-lbl">${ev.going} people going</div>
-      <div class="att-row"><div class="av-stack">${avAll}${mAll}</div></div>
-    </div>`+
+  // Social: show tagged friends and privacy if present
+  var socialInfo = '';
+  if (ev.friends && ev.friends.length) {
+    socialInfo += '<div style="margin-bottom:10px;font-size:13px;color:var(--brown)"><strong>👥 Tagged friends:</strong> ' + ev.friends.map(function(f){return '<span style="background:var(--sand);padding:2px 7px;border-radius:7px;margin-right:4px;">'+f+'</span>';}).join('') + '</div>';
+  }
+  if (ev.privacy === 'friends') {
+    socialInfo += '<div style="margin-bottom:10px;font-size:12px;color:var(--mid)"><strong>🔒 Private event (friends only)</strong></div>';
+  }
+
+  sheet.innerHTML =
+    '<div class="drag-row"><div class="drag-handle"></div><div class="sheet-share" onclick="shareSheet(\''+ev.name+'\')">📤</div></div>'+
+    '<div class="ev-hero">'+
+      '<div class="ev-big-emoji" style="background:'+(CAT_BG[ev.cat]||'#F2E8D9')+'">'+ev.icon+'</div>'+
+      '<div>'+
+        '<h2 style="font-family:var(--font-heading);font-size:19px;color:var(--dark);margin-bottom:6px">'+ev.name+'</h2>'+
+        '<span class="pill pill-cat">'+(ev.featured?'Featured':'Community')+'</span>'+(ev.family?' <span class="pill pill-family">🧒 Family</span>':'')+
+      '</div>'+
+    '</div>'+
+    socialInfo+
+    '<div class="ev-info-grid">'+
+      '<div class="ev-info-item"><strong>'+ev.date+'</strong><span>'+ev.time+'</span></div>'+
+      '<div class="ev-info-item"><strong>'+ev.venue+'</strong><span>'+distText+' miles away</span></div>'+
+      '<div class="ev-info-item"><strong>'+ev.price+'</strong><span>Entry</span></div>'+
+      '<div class="ev-info-item"><strong>Within radius</strong><span>'+prefs.radius+' miles</span></div>'+
+    '</div>'+
+    (ev.bring?'<div class="bring-box"><strong>🎒 What to bring:</strong> '+ev.bring+'</div>':'')+
+    '<p class="ev-desc">'+ev.desc+'</p>'+
+    '<div style="margin-bottom:18px">'+
+      '<div class="ev-att-lbl">'+ev.going+' people going</div>'+
+      '<div class="att-row"><div class="av-stack">'+avAll+mAll+'</div></div>'+
+    '</div>'+
     capS+
-    `<div class="qa-sec" style="border-top:0.5px solid var(--border);padding-top:16px;margin-bottom:14px">
-      <h4>Questions &#38; answers</h4>
-      ${qaH}
-      <div class="qa-wrap">
-        <input class="qa-field" type="text" placeholder="Ask a question..." id="qa-in-${ev.id}">
-        <button class="qa-send" onclick="sendQA(${ev.id})">Send</button>
-      </div>
-    </div>`+
-    `<div class="sheet-actions">
-      ${isFull
-        ? `<button class="btn-main amber" onclick="showToast('Added to waitlist 📋');closeSheet()">Join waitlist</button>`
-        : `<button class="btn-main" onclick="markGoing(${ev.id})">I'm going ✓</button>`
-      }
-      <button class="btn-main outline ${isSaved?'saved':''}" onclick="sheetSave(${ev.id},this)">${isSaved?'♥ Saved':'🔖 Save'}</button>
-    </div>`;
+    '<div class="qa-sec" style="border-top:0.5px solid var(--border);padding-top:16px;margin-bottom:14px">'+
+      '<h4>Questions & answers</h4>'+ qaH +
+      '<div class="qa-wrap">'+
+        '<input class="qa-field" type="text" placeholder="Ask a question..." id="qa-in-'+ev.id+'">'+
+        '<button class="qa-send" onclick="sendQA('+ev.id+')">Send</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="sheet-actions">'+
+      (isFull
+        ? '<button class="btn-main amber" onclick="showToast(\'Added to waitlist 📋\');closeSheet()">Join waitlist</button>'
+        : '<button class="btn-main" onclick="markGoing('+ev.id+')">I\'m going ✓</button>'
+      )+
+      '<button class="btn-main outline '+(isSaved?'saved':'')+'" onclick="sheetSave('+ev.id+',this)">'+(isSaved?'♥ Saved':'🔖 Save')+'</button>'+
+    '</div>';
 
   openSheet();
 }
@@ -1913,11 +1944,30 @@ function submitPost(){
     }
   });
   if(!ok){showToast('Please fill in the required fields');return;}
-  showToast('Your event is live on Turnout! 🎉');
+  // Social: collect friends and privacy
+  const friends = document.getElementById('f-friends').value.split(',').map(f=>f.trim()).filter(Boolean);
+  const privacy = window._eventPrivacy || 'public';
+  // (In a real app, save these fields with the event)
+  if (privacy === 'friends' && !friends.length) {
+    showToast('Tag at least one friend for a private event');
+    return;
+  }
+  showToast(privacy==='public' ? 'Your event is live on Turnout! 🎉' : 'Event posted to friends only! 👥');
   [n,v,d,t].forEach(f=>f.value='');
   document.getElementById('smart-in').value='';
   document.getElementById('parse-ok').style.display='none';
+  document.getElementById('f-friends').value='';
+  setPrivacy('public');
   setTimeout(()=>switchTab('feed',document.getElementById('ntab-feed')),600);
+// Social: privacy toggle
+function setPrivacy(val,el){
+  window._eventPrivacy = val;
+  const opts = document.querySelectorAll('.yn-toggle .yn-opt');
+  opts.forEach(o => {
+    if (o.textContent.includes('Public')) o.classList.toggle('active', val==='public');
+    if (o.textContent.includes('Friends')) o.classList.toggle('active', val==='friends');
+  });
+}
 }
 
 /* ============================
@@ -2043,44 +2093,6 @@ async function geocodeUK(query){
   const json = await res.json();
   if(!json || !json.length) return null;
   return {lat: +json[0].lat, lng: +json[0].lon, name: json[0].display_name};
-}
-
-function openLocSheet(){
-  const sheet=document.getElementById('sheet');
-  const locs=['Bicester','Oxford','Banbury','Milton Keynes'];
-
-  sheet.innerHTML=
-    `<div class="drag-row"><div class="drag-handle"></div></div>`+
-    `<h3 style="font-family:var(--font-heading);font-size:18px;margin-bottom:14px;color:var(--dark)">Change location</h3>`+
-    `<div class="loc-input-wrap"><span class="loc-search-icon">🔍</span><input class="loc-input" type="text" placeholder="Search town or postcode..." id="loc-search"></div>`+
-    `<button class="loc-use-btn" onclick="useMyLocation()">📍 Use my current location</button>`+
-    `<button class="btn-main outline" onclick="submitLocSearch()" style="margin-bottom:14px;">Search</button>`+
-    `<div style="font-size:11px;color:var(--brown);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Recent locations</div>`+
-    locs.map(l=>`<div class="loc-item" onclick="setLoc('${l}')"><span class="loc-nm">📍 ${l}</span><span class="loc-rm">×</span></div>`).join('')+
-    `<div style="margin-top:14px;padding:12px;background:var(--sand);border-radius:10px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px"><div><div style="font-size:13px;font-weight:500;color:var(--dark)">Live location</div><div style="font-size:11px;color:var(--brown);margin-top:2px;line-height:1.5">Keep map updated as you move</div></div><div class="tp" id="live-gps-tp" onclick="toggleLiveGPS(this)"></div></div>`;
-
-  openSheet();
-
-  const input = document.getElementById('loc-search');
-  input.addEventListener('keydown', (e)=>{
-    if(e.key==='Enter') submitLocSearch();
-  });
-}
-
-async function submitLocSearch(){
-  const input=document.getElementById('loc-search');
-  if(!input) return;
-  const q=input.value.trim();
-  if(!q){showToast('Enter a town or postcode');return;}
-  showToast('Searching…');
-  try{
-    const r = await geocodeUK(q);
-    if(!r){showToast('No results — try a different search');return;}
-    // Use the user's query as the "location" label for now
-    await setLoc(q, r.lat, r.lng);
-  }catch(e){
-    showToast('Search failed — try again later');
-  }
 }
 
 async function setLoc(loc, lat=null, lng=null){
