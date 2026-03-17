@@ -234,6 +234,28 @@ input,textarea,select{-webkit-appearance:none;appearance:none;}
   width:100%;
   height:100%;
   background:#e8ecd8;
+
+  /* Base layer */
+  z-index:1;
+}
+
+/* Overlay layers (filters/controls/buttons/cards) */
+.map-filter-bar,
+.map-controls,
+#near-me-btn,
+#plan-day-btn,
+#map-strip,
+#map-legend{
+  z-index:1000;
+  pointer-events:auto;
+}
+
+/* iPhone tap friendliness for chips */
+.map-filter-bar{ touch-action: manipulation; }
+.map-chip{
+  -webkit-user-select:none;
+  user-select:none;
+}
 }
 .leaflet-container{-webkit-tap-highlight-color:transparent;}
 
