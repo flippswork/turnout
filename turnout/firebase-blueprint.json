@@ -1,0 +1,90 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique user ID from Firebase Auth" },
+        "displayName": { "type": "string", "description": "User's full name" },
+        "email": { "type": "string", "format": "email", "description": "User's email address" },
+        "photoURL": { "type": "string", "format": "uri", "description": "User's profile picture URL" },
+        "location": { "type": "string", "description": "User's neighborhood or city" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the user joined" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Post": {
+      "title": "Post",
+      "description": "A community update or post",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique post ID" },
+        "authorId": { "type": "string", "description": "UID of the user who created the post" },
+        "authorName": { "type": "string", "description": "Name of the author" },
+        "authorPhoto": { "type": "string", "format": "uri", "description": "Photo URL of the author" },
+        "content": { "type": "string", "description": "The text content of the post" },
+        "imageUrl": { "type": "string", "format": "uri", "description": "Optional image URL" },
+        "category": { "type": "string", "description": "Post category (e.g., News, Lost Pet, Event)" },
+        "location": { "type": "string", "description": "Location associated with the post" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the post was created" },
+        "likes": { "type": "number", "description": "Number of likes" }
+      },
+      "required": ["authorId", "content", "createdAt"]
+    },
+    "Event": {
+      "title": "Event",
+      "description": "A neighborhood event",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique event ID" },
+        "name": { "type": "string", "description": "Name of the event" },
+        "description": { "type": "string", "description": "Event description" },
+        "lat": { "type": "number", "description": "Latitude" },
+        "lng": { "type": "number", "description": "Longitude" },
+        "date": { "type": "string", "format": "date-time", "description": "Event date and time" },
+        "icon": { "type": "string", "description": "Emoji icon for the event" },
+        "authorId": { "type": "string", "description": "UID of the event creator" },
+        "attendees": { "type": "array", "items": { "type": "string" }, "description": "List of user UIDs attending" },
+        "category": { "type": "string", "description": "Event category" }
+      },
+      "required": ["name", "lat", "lng", "date"]
+    },
+    "Circle": {
+      "title": "Circle",
+      "description": "An interest-based neighborhood group",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique circle ID" },
+        "name": { "type": "string", "description": "Name of the circle" },
+        "description": { "type": "string", "description": "Circle description" },
+        "members": { "type": "array", "items": { "type": "string" }, "description": "List of member UIDs" },
+        "createdBy": { "type": "string", "description": "UID of the creator" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation time" },
+        "icon": { "type": "string", "description": "Emoji icon" }
+      },
+      "required": ["name", "createdBy", "createdAt"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A private message between neighbors",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique message ID" },
+        "senderId": { "type": "string", "description": "UID of the sender" },
+        "receiverId": { "type": "string", "description": "UID of the receiver" },
+        "content": { "type": "string", "description": "Message text" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Sent time" },
+        "read": { "type": "boolean", "description": "Whether the message has been read" }
+      },
+      "required": ["senderId", "receiverId", "content", "createdAt"]
+    }
+  },
+  "firestore": {
+    "users": { "schema": "User", "description": "Collection of user profiles" },
+    "posts": { "schema": "Post", "description": "Collection of community posts" },
+    "events": { "schema": "Event", "description": "Collection of neighborhood events" },
+    "circles": { "schema": "Circle", "description": "Collection of interest groups" },
+    "messages": { "schema": "Message", "description": "Collection of private messages" }
+  }
+}

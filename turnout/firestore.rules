@@ -1,0 +1,211 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {uid}
+    // Fields:
+    //   - uid: string (required)
+    //   - displayName: string (optional)
+    //   - email: string (required, format: email)
+    //   - photoURL: string (optional, format: uri)
+    //   - location: string (optional)
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: posts
+    // Document ID: {postId}
+    // Fields:
+    //   - id: string (required)
+    //   - authorId: string (required)
+    //   - authorName: string (required)
+    //   - authorPhoto: string (optional, format: uri)
+    //   - content: string (required, max: 1000)
+    //   - imageUrl: string (optional, format: uri)
+    //   - category: string (optional)
+    //   - location: string (optional)
+    //   - createdAt: timestamp (required)
+    //   - likes: number (optional)
+    //
+    // Collection: events
+    // Document ID: {eventId}
+    // Fields:
+    //   - id: string (required)
+    //   - name: string (required)
+    //   - description: string (optional)
+    //   - lat: number (required)
+    //   - lng: number (required)
+    //   - date: timestamp (required)
+    //   - icon: string (optional)
+    //   - authorId: string (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.authorId;
+    }
+
+    function uidUnchanged() {
+      return !('authorId' in request.resource.data) || request.resource.data.authorId == request.auth.uid;
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidUrl(url) {
+      return url is string && (url.matches("^https://.*") || url.matches("^http://.*"));
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "smauelfaggt@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return hasRequiredFields(['uid', 'email', 'createdAt']) &&
+             data.uid == request.auth.uid &&
+             isValidEmail(data.email) &&
+             data.createdAt is timestamp &&
+             (!('photoURL' in data) || isValidUrl(data.photoURL)) &&
+             (!('displayName' in data) || (data.displayName is string && data.displayName.size() < 100));
+    }
+
+    function isValidPost(data) {
+      return hasRequiredFields(['authorId', 'content', 'createdAt']) &&
+             data.authorId == request.auth.uid &&
+             data.content is string && data.content.size() > 0 && data.content.size() <= 1000 &&
+             data.createdAt is timestamp &&
+             (!('imageUrl' in data) || isValidUrl(data.imageUrl)) &&
+             (!('authorPhoto' in data) || isValidUrl(data.authorPhoto));
+    }
+
+    function isValidEvent(data) {
+      return hasRequiredFields(['name', 'lat', 'lng', 'date', 'authorId']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.lat is number && data.lng is number &&
+             data.date is timestamp &&
+             data.authorId is string &&
+             (!('attendees' in data) || data.attendees is list) &&
+             (!('category' in data) || data.category is string);
+    }
+
+    function isValidCircle(data) {
+      return hasRequiredFields(['name', 'createdBy', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.createdBy == request.auth.uid &&
+             data.createdAt is timestamp &&
+             (!('members' in data) || data.members is list);
+    }
+
+    function isValidMessage(data) {
+      return hasRequiredFields(['senderId', 'receiverId', 'content', 'createdAt']) &&
+             data.senderId == request.auth.uid &&
+             data.receiverId is string &&
+             data.content is string && data.content.size() > 0 && data.content.size() <= 2000 &&
+             data.createdAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      // Users can only read their own profile if it contains PII (email)
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && isValidUser(request.resource.data) && (isOwner(userId) || isAdmin());
+      allow update: if isAuthenticated() && isValidUser(request.resource.data) && (isOwner(userId) || isAdmin());
+    }
+
+    match /posts/{postId} {
+      // Posts are public for everyone to look
+      allow read: if true;
+      allow create: if isAuthenticated() && isValidPost(request.resource.data);
+      allow update: if isAuthenticated() && isValidPost(request.resource.data) && (isDocOwner() || isAdmin());
+      allow delete: if isAuthenticated() && (isDocOwner() || isAdmin());
+    }
+
+    match /events/{eventId} {
+      // Events are public for everyone to look
+      allow read: if true;
+      allow create: if isAuthenticated() && isValidEvent(request.resource.data);
+      // Allow users to RSVP (update attendees array)
+      allow update: if isAuthenticated() && (
+        (isValidEvent(request.resource.data) && (isDocOwner() || isAdmin())) ||
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['attendees']) &&
+          request.resource.data.attendees is list &&
+          (
+            // Adding self
+            (request.resource.data.attendees.size() == resource.data.attendees.size() + 1 && request.resource.data.attendees.hasAll(resource.data.attendees) && request.resource.data.attendees.hasAll([request.auth.uid])) ||
+            // Removing self
+            (request.resource.data.attendees.size() == resource.data.attendees.size() - 1 && resource.data.attendees.hasAll(request.resource.data.attendees) && resource.data.attendees.hasAll([request.auth.uid]) && !request.resource.data.attendees.hasAny([request.auth.uid]))
+          )
+        )
+      );
+      allow delete: if isAuthenticated() && (isDocOwner() || isAdmin());
+    }
+
+    match /circles/{circleId} {
+      // Circles are public to read
+      allow read: if true;
+      allow create: if isAuthenticated() && isValidCircle(request.resource.data);
+      // Allow members to join/leave
+      allow update: if isAuthenticated() && (
+        (isValidCircle(request.resource.data) && (request.auth.uid == resource.data.createdBy || isAdmin())) ||
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members']) &&
+          request.resource.data.members is list &&
+          (
+            // Joining
+            (request.resource.data.members.size() == resource.data.members.size() + 1 && request.resource.data.members.hasAll(resource.data.members) && request.resource.data.members.hasAll([request.auth.uid])) ||
+            // Leaving
+            (request.resource.data.members.size() == resource.data.members.size() - 1 && resource.data.members.hasAll(request.resource.data.members) && resource.data.members.hasAll([request.auth.uid]) && !request.resource.data.members.hasAny([request.auth.uid]))
+          )
+        )
+      );
+      allow delete: if isAuthenticated() && (request.auth.uid == resource.data.createdBy || isAdmin());
+    }
+
+    match /messages/{messageId} {
+      // Messages are private between sender and receiver
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.senderId || request.auth.uid == resource.data.receiverId);
+      allow create: if isAuthenticated() && isValidMessage(request.resource.data);
+      allow update: if isAuthenticated() && (request.auth.uid == resource.data.receiverId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow delete: if false; // Messages shouldn't be deleted easily
+    }
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}
